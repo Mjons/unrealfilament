@@ -4,22 +4,22 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "has": [{ "type": "host", "value": "play.unrealfilament.art" }],
-      "destination": "/play/$1"
+      "destination": "/play/:path*"
     }
   ],
   "redirects": [
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "has": [{ "type": "host", "value": "www.unrealfilament.art" }],
-      "destination": "https://unrealfilament.art/$1",
+      "destination": "https://unrealfilament.art/:path*",
       "permanent": true
     }
   ],
   "headers": [
     {
-      "source": "/(.*\\.(webp|png|jpg|jpeg|svg|woff2|css|js|ico))",
+      "source": "/:path*.:ext(webp|png|jpg|jpeg|svg|woff2|css|js|ico)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -28,7 +28,7 @@
       ]
     },
     {
-      "source": "/(.*\\.html)",
+      "source": "/:path*.html",
       "headers": [
         {
           "key": "Cache-Control",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         {
