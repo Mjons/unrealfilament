@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>About — Filament</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <meta
+      name="description"
+      content="About Filament — a 250-pair flow-field edition by @unrealape. The pair model, palettes, and frequently-asked questions."
+    />
+    <meta name="theme-color" content="#0e0d0a" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="About Filament" />
+    <meta
+      property="og:description"
+      content="A 250-pair flow-field edition. The pair model, the palettes, the FAQ."
+    />
+    <meta
+      property="og:image"
+      content="https://unrealfilament.art/assets/og.jpg"
+    />
+    <meta property="og:url" content="https://unrealfilament.art/about.html" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@UnrealFilament" />
+
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="stylesheet" href="site.css" />
+  </head>
+
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a href="/" class="site-brand">Filament</a>
+        <nav class="site-nav">
+          <a href="/edition/">edition</a>
+          <a href="https://play.unrealfilament.art">play</a>
+          <a href="/about.html" class="active">about</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="about-hero">
+        <div class="section-narrow">
+          <div class="section-eyebrow">About</div>
+          <h1>Filament — in the flow-field tradition.</h1>
+          <p class="lede">
+            A 250-pair edition of generative flow-field artwork by
+            <a href="https://x.com/unrealape">@unrealape</a>. Each mint pairs an
+            artist-chosen piece with a piece you roll yourself, delivered
+            together as two ERC-721 tokens on an Ethereum L2.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-narrow">
+          <h2>The pair</h2>
+          <p>
+            One purchase. Two artworks. The Edition piece is hand-picked from a
+            working pool of over a thousand candidates I generated in studio.
+            The Twin piece is the buyer's — rolled fresh at checkout on a
+            slot-machine picker, then rendered by the same algorithm at the same
+            resolution. Same pair number on both, so the two halves stay visibly
+            linked on chain.
+          </p>
+          <p>
+            The Edition is my curatorial voice. The Twin is the buyer's agency
+            inside it. Two halves of one frame.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-narrow">
+          <h2>The palettes</h2>
+          <p>
+            Every palette in the edition is named for an Italian place, painter,
+            or process. Seventeen in total. Morandi for the quietest dusty earth
+            tones; Murano for the loudest jewel tones on velvet black.
+            Carpaccio, Notturno, Glaciale, Foglio, Tramonto, Pesaro, Marche,
+            Lucente, Fresco, Terra, Ombra, Piero, Raffaello, Appennino,
+            Montefeltro.
+          </p>
+          <p>
+            Each palette gets its own movement in the mint sequence — #001
+            through #250 are grouped by palette so the edition reads as a series
+            of color worlds rather than a random shuffle.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-narrow">
+          <h2>The algorithm</h2>
+          <p>
+            Layered simplex noise drives a flow field. Curves are traced through
+            the field, smoothed, and rendered as chains of beads with
+            collision-aware spacing. Each bead picks a treatment (solid, rings,
+            split, pie, dots, hollow) weighted per piece. The whole pipeline is
+            deterministic — same seed, same render, forever.
+          </p>
+          <p>
+            Implementation is original. The lineage — flow-field algorithms
+            applied to generative art — goes back through decades of work in the
+            field, of which this is one quiet entry.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-narrow">
+          <h2>FAQ</h2>
+          <dl class="faq">
+            <dt>Why two artworks per mint?</dt>
+            <dd>
+              Most generative drops are either fully artist-curated (you get
+              what was made) or fully open (you mint a random seed). Filament
+              does both at once: the Edition piece is mine, the Twin piece is
+              yours, delivered together. It's the cleanest resolution we could
+              find of curation versus participation.
+            </dd>
+
+            <dt>How does rolling work?</dt>
+            <dd>
+              When you reach checkout, you're sent to Filament Play with a
+              deep-link tied to your Edition piece. A three-reel slot machine
+              picks an Italian word combination (e.g.
+              <code>dolce-corvo-42</code>), the algorithm renders the piece, and
+              you decide. Roll as many times as you want. When you find one you
+              like, lock it and mint the pair.
+            </dd>
+
+            <dt>Is it on Art Blocks?</dt>
+            <dd>
+              No — independent. The pair-mint architecture needs a custom
+              contract; Art Blocks scripts mint one ERC-721 per buyer with a
+              single image. Filament needs two.
+            </dd>
+
+            <dt>What chain?</dt>
+            <dd>
+              An Ethereum L2 (final pick announced before launch). Low gas,
+              supports both crypto wallets and credit-card checkout via a fiat
+              relayer.
+            </dd>
+
+            <dt>How much?</dt>
+            <dd>
+              $90 per pair at the floor. Price climbs as the edition sells
+              through — early supporters get the lowest tier. Tentative tier
+              schedule: $90 / $150 / $250 / $400 across the 250-pair run.
+            </dd>
+
+            <dt>What does ownership look like?</dt>
+            <dd>
+              Each pair delivers two NFTs to your wallet — one Edition token,
+              one Twin token, linked by metadata (<code>pair_id</code>,
+              <code>twin_token_id</code>). Both are standard ERC-721, freely
+              transferable. You can sell the pair together or split them on the
+              secondary market.
+            </dd>
+
+            <dt>Is Filament Play free?</dt>
+            <dd>
+              Yes — completely. Anyone can roll, share, and save locally. Play
+              is open before, during, and after the mint. When you buy a pair,
+              the same machine rolls your Twin half. The free toy and the mint
+              flow share a UI.
+            </dd>
+          </dl>
+        </div>
+      </section>
+
+      <section class="cta-stripe">
+        <div class="section-narrow">
+          <h3>See the edition.</h3>
+          <p>
+            All 250 pieces in mint order. Click any piece to see it full-size.
+          </p>
+          <a class="btn btn-primary" href="/edition/">View the edition →</a>
+          <a class="btn btn-secondary" href="https://play.unrealfilament.art"
+            >Try Filament Play</a
+          >
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-links">
+        <a href="/edition/">edition</a>
+        <a href="https://play.unrealfilament.art">play</a>
+        <a href="/about.html">about</a>
+        <a href="https://x.com/UnrealFilament">@UnrealFilament</a>
+        <a href="https://x.com/unrealape">@unrealape</a>
+      </div>
+      <div class="footer-fineprint">
+        Made by @unrealape · in the flow-field tradition.
+      </div>
+    </footer>
+  </body>
+</html>

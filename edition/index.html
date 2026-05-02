@@ -1,0 +1,3756 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>The edition — Filament</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="All 250 pieces of the Filament edition in mint order. Click any piece to see it full-size."
+    />
+    <meta name="theme-color" content="#0e0d0a" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="The Filament edition — 250 pieces" />
+    <meta
+      property="og:description"
+      content="All 250 pieces in mint order. A 250-pair flow-field edition by @unrealape."
+    />
+    <meta
+      property="og:image"
+      content="https://unrealfilament.art/assets/og.jpg"
+    />
+    <meta property="og:url" content="https://unrealfilament.art/edition/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@UnrealFilament" />
+    <meta name="twitter:creator" content="@unrealape" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        --bg: #0e0d0a;
+        --surface: #18171a;
+        --fg: #f5e8c8;
+        --muted: #888076;
+        --line: #2a2a26;
+        --accent: #b38b2a;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      /* Suppress horizontal scrollbar from the 1px image bleed in
+         labels-off mode — see .card-img-wrap rules below. */
+      body {
+        overflow-x: hidden;
+      }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui,
+          sans-serif;
+        font-feature-settings: "tnum";
+        -webkit-font-smoothing: antialiased;
+      }
+      header {
+        padding: 24px 24px 12px;
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        z-index: 10;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      header .meta {
+        margin-top: 4px;
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+      }
+      .filters {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+      .filter-btn {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 5px 10px;
+        font-size: 11px;
+        font-family: inherit;
+        cursor: pointer;
+        letter-spacing: 0.02em;
+        transition: all 100ms;
+      }
+      .filter-btn:hover {
+        color: var(--fg);
+        border-color: var(--accent);
+      }
+      .filter-btn.active {
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
+      }
+      .layout-controls {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        align-items: center;
+      }
+      .ctrl-group {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      .ctrl-label {
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-right: 4px;
+      }
+      .ctrl-btn {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 4px 9px;
+        font-size: 11px;
+        font-family: inherit;
+        cursor: pointer;
+        letter-spacing: 0.02em;
+        transition: all 100ms;
+      }
+      .ctrl-btn:hover {
+        color: var(--fg);
+        border-color: var(--accent);
+      }
+      .ctrl-btn.active {
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
+      }
+      main {
+        --grid-min: 180px;
+        padding: 16px 24px 60px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--grid-min), 1fr));
+        grid-auto-rows: var(--grid-min);
+        grid-auto-flow: dense;
+        gap: 12px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        cursor: pointer;
+        overflow: hidden;
+        position: relative;
+        transition: border-color 120ms;
+        display: flex;
+        flex-direction: column;
+        /* CSS containment — browser skips layout/paint/style for offscreen
+           cards entirely. Combined with the IntersectionObserver-based
+           image lazy loading, makes scrolling 250 cards smooth even on
+           slower machines. contain-intrinsic-size reserves the slot so
+           scroll position doesn't jitter when cards become visible. */
+        content-visibility: auto;
+        contain-intrinsic-size: var(--grid-min) var(--grid-min);
+      }
+      .card:hover {
+        border-color: var(--accent);
+      }
+      .card-img-wrap {
+        flex: 1 1 auto;
+        background: #111;
+        overflow: hidden;
+        min-height: 0;
+      }
+      .card img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 220ms ease;
+      }
+      .card img.loaded {
+        opacity: 1;
+      }
+      /* Layout role spans — apply only under matching layout class. */
+      main.layout-varied .card.role-feature,
+      main.layout-mixed .card.role-feature {
+        grid-column: span 2;
+        grid-row: span 2;
+      }
+      main.layout-mixed .card.role-hero {
+        grid-column: span 3;
+        grid-row: span 3;
+      }
+      /* Labels off — flush grid, no chrome between images.
+         The bleed approach (image extending past cell bounds) couldn't
+         beat subpixel rounding from 1fr flexible columns at small grid
+         sizes with Mixed spans. Real fix: switch to fixed-width columns
+         so cells tile to exact integer pixels with zero possibility of
+         subpixel gaps. Trade-off: grid no longer stretches to viewport
+         width — it gets centered with body-bg margins on the sides.
+         Far better than gaps inside.
+         The +2px image bleed stays as belt-and-braces for any edge
+         case (e.g. browsers that round span widths inconsistently). */
+      main.labels-off {
+        gap: 0;
+        padding: 0;
+        grid-template-columns: repeat(auto-fill, var(--grid-min));
+        justify-content: center;
+      }
+      main.labels-off .card {
+        border: none;
+        border-radius: 0;
+        overflow: visible;
+      }
+      main.labels-off .card-meta {
+        display: none;
+      }
+      main.labels-off .card-img-wrap {
+        overflow: visible;
+      }
+      main.labels-off .card-img-wrap img {
+        width: calc(100% + 4px);
+        height: calc(100% + 4px);
+        margin: -2px;
+      }
+      .card-meta {
+        padding: 6px 8px;
+        font-size: 11px;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 6px;
+      }
+      .card-meta .token {
+        color: var(--fg);
+        font-weight: 700;
+      }
+      .card-meta .palette {
+        font-size: 10px;
+        letter-spacing: 0.04em;
+      }
+      .card.hidden {
+        display: none;
+      }
+
+      /* Modal */
+      #modal {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.94);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      #modal.show {
+        display: flex;
+      }
+      .modal-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        max-width: 100%;
+        max-height: 100%;
+      }
+      .modal-img-wrap {
+        max-width: 95vw;
+        max-height: calc(100vh - 140px);
+        flex: 0 1 auto;
+        min-height: 0;
+        overflow: hidden;
+        cursor: zoom-in;
+      }
+      .modal-img-wrap img {
+        max-width: 95vw;
+        max-height: calc(100vh - 140px);
+        width: auto;
+        height: auto;
+        display: block;
+        background: #111;
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+      /* Zoomed: image at native size, wrap becomes scrollable, drag-to-pan. */
+      .modal-img-wrap.zoomed {
+        cursor: grab;
+        overflow: auto;
+      }
+      .modal-img-wrap.zoomed.dragging {
+        cursor: grabbing;
+      }
+      .modal-img-wrap.zoomed img {
+        max-width: none;
+        max-height: none;
+      }
+      .modal-bar {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 8px 14px;
+        max-width: 90vw;
+      }
+      .modal-side {
+        color: var(--fg);
+        font-size: 12px;
+        line-height: 1.5;
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .modal-side .token-id {
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .modal-side .trait {
+        display: flex;
+        gap: 4px;
+      }
+      .modal-side .trait .k {
+        color: var(--muted);
+      }
+      .modal-side .trait .v {
+        color: var(--fg);
+      }
+      .modal-side .seed {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 11px;
+        opacity: 0.7;
+      }
+      .modal-controls {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .modal-controls button {
+        background: transparent;
+        color: var(--fg);
+        border: 1px solid transparent;
+        font-size: 13px;
+        font-family: inherit;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 3px;
+      }
+      .modal-controls button:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--line);
+      }
+      .modal-controls .close {
+        color: var(--muted);
+      }
+      .modal-controls .position {
+        color: var(--muted);
+        font-size: 11px;
+        padding: 0 6px;
+      }
+      footer {
+        text-align: center;
+        font-size: 11px;
+        color: var(--muted);
+        padding: 18px;
+        border-top: 1px solid var(--line);
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 12px;
+          gap: 8px;
+          --grid-min: 140px;
+        }
+        header {
+          padding: 16px 14px 10px;
+        }
+        .modal-img-wrap img {
+          max-height: calc(100vh - 180px);
+        }
+      }
+      /* Site-wide nav prefixed with .fil- to avoid colliding with the
+         preview's own header/nav styles. Sits above the gallery's own
+         header which contains the size/layout/labels controls. */
+      .fil-nav {
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        background: rgba(14, 13, 10, 0.85);
+        backdrop-filter: saturate(140%) blur(12px);
+        -webkit-backdrop-filter: saturate(140%) blur(12px);
+        border-bottom: 1px solid var(--line);
+      }
+      .fil-nav-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 14px 24px;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+      }
+      .fil-brand {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--fg);
+        text-decoration: none;
+        letter-spacing: -0.01em;
+      }
+      .fil-links {
+        margin-left: auto;
+        display: flex;
+        gap: 22px;
+        font-size: 13px;
+        letter-spacing: 0.04em;
+        text-transform: lowercase;
+      }
+      .fil-links a {
+        color: var(--muted);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition:
+          color 120ms,
+          border-color 120ms;
+      }
+      .fil-links a:hover {
+        color: var(--fg);
+        border-bottom-color: var(--accent);
+      }
+      .fil-links a.active {
+        color: var(--fg);
+      }
+      /* Gallery's own header (filters + controls) sits below the site
+         nav. Drop its sticky behavior so only one header sticks. */
+      header {
+        position: static !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="fil-nav">
+      <div class="fil-nav-inner">
+        <a href="/" class="fil-brand">Filament</a>
+        <nav class="fil-links">
+          <a href="/edition/" class="active">edition</a>
+          <a href="https://play.unrealfilament.art">play</a>
+          <a href="/about.html">about</a>
+        </nav>
+      </div>
+    </div>
+    <header>
+      <h1>The edition</h1>
+      <div class="meta">
+        250-piece curated edition · mint order #1 → #250 · ordered by palette ·
+        filament v1.0.0
+      </div>
+      <div class="filters" id="filters"></div>
+      <div class="layout-controls">
+        <div class="ctrl-group">
+          <span class="ctrl-label">Size</span>
+          <button class="ctrl-btn" data-size="120">S</button>
+          <button class="ctrl-btn active" data-size="180">M</button>
+          <button class="ctrl-btn" data-size="280">L</button>
+          <button class="ctrl-btn" data-size="400">XL</button>
+        </div>
+        <div class="ctrl-group">
+          <span class="ctrl-label">Layout</span>
+          <button class="ctrl-btn active" data-layout="uniform">Uniform</button>
+          <button class="ctrl-btn" data-layout="varied">Varied</button>
+          <button class="ctrl-btn" data-layout="mixed">Mixed</button>
+        </div>
+        <div class="ctrl-group">
+          <span class="ctrl-label">Labels</span>
+          <button class="ctrl-btn active" data-labels="on">On</button>
+          <button class="ctrl-btn" data-labels="off">Off</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="grid"></main>
+
+    <div id="modal">
+      <div class="modal-img-wrap">
+        <img id="modal-img" src="" alt="" />
+        <div class="modal-side" id="modal-side"></div>
+        <div class="modal-controls">
+          <button class="prev">← prev</button>
+          <span class="position" id="modal-position">—</span>
+          <button class="next">next →</button>
+          <button class="close">close (esc)</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      All 250 pieces in mint order · click any tile to open · ←/→ to navigate ·
+      esc to close<br />
+      <a href="/" style="color: var(--fg-soft, #d8cba8); text-decoration: none"
+        >Filament</a
+      >
+      &nbsp;·&nbsp;
+      <a
+        href="https://play.unrealfilament.art"
+        style="color: var(--fg-soft, #d8cba8); text-decoration: none"
+        >play</a
+      >
+      &nbsp;·&nbsp;
+      <a
+        href="/about.html"
+        style="color: var(--fg-soft, #d8cba8); text-decoration: none"
+        >about</a
+      >
+      &nbsp;·&nbsp;
+      <a
+        href="https://x.com/UnrealFilament"
+        style="color: var(--fg-soft, #d8cba8); text-decoration: none"
+        >@UnrealFilament</a
+      >
+    </footer>
+
+    <script>
+      const EDITION = {
+        edition: "Filament v1",
+        appVersion: "filament v1.0.0",
+        exportedAt: "2026-05-02T13:30:55.815Z",
+        orderingStrategy: "palette",
+        totalPieces: 250,
+        selected: [
+          {
+            tokenId: 1,
+            filename:
+              "filament_1777568401717_0004_njed0bry_Morandi_medium.webp",
+            sidecar: "filament_1777568401717_0004_njed0bry_Morandi_medium.json",
+            seed: "njed0bry",
+            palette: "Morandi",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777568401717_0004_njed0bry_Morandi_medium_thumb.webp",
+          },
+          {
+            tokenId: 2,
+            filename: "filament_1777569571552_0056_69fkxzjy_Morandi_jumbo.webp",
+            sidecar: "filament_1777569571552_0056_69fkxzjy_Morandi_jumbo.json",
+            seed: "69fkxzjy",
+            palette: "Morandi",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569571552_0056_69fkxzjy_Morandi_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 3,
+            filename: "filament_1777569588985_0084_rbrft6ji_Morandi_jumbo.webp",
+            sidecar: "filament_1777569588985_0084_rbrft6ji_Morandi_jumbo.json",
+            seed: "rbrft6ji",
+            palette: "Morandi",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569588985_0084_rbrft6ji_Morandi_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 4,
+            filename: "filament_1777570215331_0028_dgo7y2qy_Morandi_small.webp",
+            sidecar: "filament_1777570215331_0028_dgo7y2qy_Morandi_small.json",
+            seed: "dgo7y2qy",
+            palette: "Morandi",
+            scale: "small",
+            style: "beads",
+            thumbnail:
+              "filament_1777570215331_0028_dgo7y2qy_Morandi_small_thumb.webp",
+          },
+          {
+            tokenId: 5,
+            filename: "filament_1777570349787_0097_9ik6v3ka_Morandi_large.webp",
+            sidecar: "filament_1777570349787_0097_9ik6v3ka_Morandi_large.json",
+            seed: "9ik6v3ka",
+            palette: "Morandi",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570349787_0097_9ik6v3ka_Morandi_large_thumb.webp",
+          },
+          {
+            tokenId: 6,
+            filename: "filament_1777667023325_0010_7kb4tvzb_Morandi_large.webp",
+            sidecar: "filament_1777667023325_0010_7kb4tvzb_Morandi_large.json",
+            seed: "7kb4tvzb",
+            palette: "Morandi",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777667023325_0010_7kb4tvzb_Morandi_large_thumb.webp",
+          },
+          {
+            tokenId: 7,
+            filename: "filament_1777667041920_0012_pj81xpqc_Morandi_mixed.webp",
+            sidecar: "filament_1777667041920_0012_pj81xpqc_Morandi_mixed.json",
+            seed: "pj81xpqc",
+            palette: "Morandi",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667041920_0012_pj81xpqc_Morandi_mixed_thumb.webp",
+          },
+          {
+            tokenId: 8,
+            filename: "filament_1777667053146_0008_zbxhmsiq_Morandi_mixed.webp",
+            sidecar: "filament_1777667053146_0008_zbxhmsiq_Morandi_mixed.json",
+            seed: "zbxhmsiq",
+            palette: "Morandi",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667053146_0008_zbxhmsiq_Morandi_mixed_thumb.webp",
+          },
+          {
+            tokenId: 9,
+            filename: "filament_1777667056954_0012_1gw4vyuw_Morandi_mixed.webp",
+            sidecar: "filament_1777667056954_0012_1gw4vyuw_Morandi_mixed.json",
+            seed: "1gw4vyuw",
+            palette: "Morandi",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667056954_0012_1gw4vyuw_Morandi_mixed_thumb.webp",
+          },
+          {
+            tokenId: 10,
+            filename: "filament_1777667058669_0014_1afhh5vk_Morandi_mixed.webp",
+            sidecar: "filament_1777667058669_0014_1afhh5vk_Morandi_mixed.json",
+            seed: "1afhh5vk",
+            palette: "Morandi",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667058669_0014_1afhh5vk_Morandi_mixed_thumb.webp",
+          },
+          {
+            tokenId: 11,
+            filename:
+              "filament_1777667172540_0065_imb7hlbd_Morandi_medium.webp",
+            sidecar: "filament_1777667172540_0065_imb7hlbd_Morandi_medium.json",
+            seed: "imb7hlbd",
+            palette: "Morandi",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667172540_0065_imb7hlbd_Morandi_medium_thumb.webp",
+          },
+          {
+            tokenId: 12,
+            filename: "filament_1777667182364_0077_wf1tljpc_Morandi_large.webp",
+            sidecar: "filament_1777667182364_0077_wf1tljpc_Morandi_large.json",
+            seed: "wf1tljpc",
+            palette: "Morandi",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667182364_0077_wf1tljpc_Morandi_large_thumb.webp",
+          },
+          {
+            tokenId: 13,
+            filename: "filament_1777667205941_0102_8z3se0fh_Morandi_mixed.webp",
+            sidecar: "filament_1777667205941_0102_8z3se0fh_Morandi_mixed.json",
+            seed: "8z3se0fh",
+            palette: "Morandi",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667205941_0102_8z3se0fh_Morandi_mixed_thumb.webp",
+          },
+          {
+            tokenId: 14,
+            filename: "filament_filament_Morandi_mixed.webp",
+            sidecar: "filament_filament_Morandi_mixed.json",
+            seed: "filament",
+            palette: "Morandi",
+            scale: "mixed",
+            style: "beads",
+            thumbnail: "filament_filament_Morandi_mixed_thumb.webp",
+          },
+          {
+            tokenId: 15,
+            filename:
+              "filament_1777569271276_0015_ewpmf5kg_Montefeltro_mixed.webp",
+            sidecar:
+              "filament_1777569271276_0015_ewpmf5kg_Montefeltro_mixed.json",
+            seed: "ewpmf5kg",
+            palette: "Montefeltro",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777569271276_0015_ewpmf5kg_Montefeltro_mixed_thumb.webp",
+          },
+          {
+            tokenId: 16,
+            filename:
+              "filament_1777569275773_0019_vsj8dhsk_Montefeltro_large.webp",
+            sidecar:
+              "filament_1777569275773_0019_vsj8dhsk_Montefeltro_large.json",
+            seed: "vsj8dhsk",
+            palette: "Montefeltro",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777569275773_0019_vsj8dhsk_Montefeltro_large_thumb.webp",
+          },
+          {
+            tokenId: 17,
+            filename:
+              "filament_1777569561661_0040_nf62fka5_Montefeltro_jumbo.webp",
+            sidecar:
+              "filament_1777569561661_0040_nf62fka5_Montefeltro_jumbo.json",
+            seed: "nf62fka5",
+            palette: "Montefeltro",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569561661_0040_nf62fka5_Montefeltro_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 18,
+            filename:
+              "filament_1777569611678_0118_zezh2zes_Montefeltro_jumbo.webp",
+            sidecar:
+              "filament_1777569611678_0118_zezh2zes_Montefeltro_jumbo.json",
+            seed: "zezh2zes",
+            palette: "Montefeltro",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569611678_0118_zezh2zes_Montefeltro_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 19,
+            filename:
+              "filament_1777569631808_0150_dorzkgu1_Montefeltro_jumbo.webp",
+            sidecar:
+              "filament_1777569631808_0150_dorzkgu1_Montefeltro_jumbo.json",
+            seed: "dorzkgu1",
+            palette: "Montefeltro",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569631808_0150_dorzkgu1_Montefeltro_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 20,
+            filename:
+              "filament_1777570195864_0010_r7pbw30f_Montefeltro_mixed.webp",
+            sidecar:
+              "filament_1777570195864_0010_r7pbw30f_Montefeltro_mixed.json",
+            seed: "r7pbw30f",
+            palette: "Montefeltro",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570195864_0010_r7pbw30f_Montefeltro_mixed_thumb.webp",
+          },
+          {
+            tokenId: 21,
+            filename:
+              "filament_1777667017317_0004_4m7gy5es_Montefeltro_jumbo.webp",
+            sidecar:
+              "filament_1777667017317_0004_4m7gy5es_Montefeltro_jumbo.json",
+            seed: "4m7gy5es",
+            palette: "Montefeltro",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667017317_0004_4m7gy5es_Montefeltro_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 22,
+            filename:
+              "filament_1777667045013_0001_mqow65ws_Montefeltro_mixed.webp",
+            sidecar:
+              "filament_1777667045013_0001_mqow65ws_Montefeltro_mixed.json",
+            seed: "mqow65ws",
+            palette: "Montefeltro",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667045013_0001_mqow65ws_Montefeltro_mixed_thumb.webp",
+          },
+          {
+            tokenId: 23,
+            filename:
+              "filament_1777667048979_0004_z4ppow9t_Montefeltro_medium.webp",
+            sidecar:
+              "filament_1777667048979_0004_z4ppow9t_Montefeltro_medium.json",
+            seed: "z4ppow9t",
+            palette: "Montefeltro",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667048979_0004_z4ppow9t_Montefeltro_medium_thumb.webp",
+          },
+          {
+            tokenId: 24,
+            filename:
+              "filament_1777667115964_0001_0il25nrb_Montefeltro_medium.webp",
+            sidecar:
+              "filament_1777667115964_0001_0il25nrb_Montefeltro_medium.json",
+            seed: "0il25nrb",
+            palette: "Montefeltro",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667115964_0001_0il25nrb_Montefeltro_medium_thumb.webp",
+          },
+          {
+            tokenId: 25,
+            filename:
+              "filament_1777667151792_0044_vgomhsu1_Montefeltro_mixed.webp",
+            sidecar:
+              "filament_1777667151792_0044_vgomhsu1_Montefeltro_mixed.json",
+            seed: "vgomhsu1",
+            palette: "Montefeltro",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667151792_0044_vgomhsu1_Montefeltro_mixed_thumb.webp",
+          },
+          {
+            tokenId: 26,
+            filename:
+              "filament_1777667222317_0124_9eqfem8j_Montefeltro_medium.webp",
+            sidecar:
+              "filament_1777667222317_0124_9eqfem8j_Montefeltro_medium.json",
+            seed: "9eqfem8j",
+            palette: "Montefeltro",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667222317_0124_9eqfem8j_Montefeltro_medium_thumb.webp",
+          },
+          {
+            tokenId: 27,
+            filename:
+              "filament_1777569327478_0011_ztefxxoo_Carpaccio_jumbo.webp",
+            sidecar:
+              "filament_1777569327478_0011_ztefxxoo_Carpaccio_jumbo.json",
+            seed: "ztefxxoo",
+            palette: "Carpaccio",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569327478_0011_ztefxxoo_Carpaccio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 28,
+            filename:
+              "filament_1777569572815_0058_96m8blqp_Carpaccio_jumbo.webp",
+            sidecar:
+              "filament_1777569572815_0058_96m8blqp_Carpaccio_jumbo.json",
+            seed: "96m8blqp",
+            palette: "Carpaccio",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569572815_0058_96m8blqp_Carpaccio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 29,
+            filename:
+              "filament_1777569578428_0067_ca6nfrx6_Carpaccio_jumbo.webp",
+            sidecar:
+              "filament_1777569578428_0067_ca6nfrx6_Carpaccio_jumbo.json",
+            seed: "ca6nfrx6",
+            palette: "Carpaccio",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569578428_0067_ca6nfrx6_Carpaccio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 30,
+            filename:
+              "filament_1777569594381_0093_6u2jg244_Carpaccio_jumbo.webp",
+            sidecar:
+              "filament_1777569594381_0093_6u2jg244_Carpaccio_jumbo.json",
+            seed: "6u2jg244",
+            palette: "Carpaccio",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569594381_0093_6u2jg244_Carpaccio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 31,
+            filename:
+              "filament_1777569620547_0133_p7ftc0px_Carpaccio_jumbo.webp",
+            sidecar:
+              "filament_1777569620547_0133_p7ftc0px_Carpaccio_jumbo.json",
+            seed: "p7ftc0px",
+            palette: "Carpaccio",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569620547_0133_p7ftc0px_Carpaccio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 32,
+            filename:
+              "filament_1777570103195_0063_y0smkxtb_Carpaccio_jumbo.webp",
+            sidecar:
+              "filament_1777570103195_0063_y0smkxtb_Carpaccio_jumbo.json",
+            seed: "y0smkxtb",
+            palette: "Carpaccio",
+            scale: "jumbo",
+            style: "thin",
+            thumbnail:
+              "filament_1777570103195_0063_y0smkxtb_Carpaccio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 33,
+            filename:
+              "filament_1777570137442_0087_wddqvot4_Carpaccio_micro.webp",
+            sidecar:
+              "filament_1777570137442_0087_wddqvot4_Carpaccio_micro.json",
+            seed: "wddqvot4",
+            palette: "Carpaccio",
+            scale: "micro",
+            style: "beads",
+            thumbnail:
+              "filament_1777570137442_0087_wddqvot4_Carpaccio_micro_thumb.webp",
+          },
+          {
+            tokenId: 34,
+            filename:
+              "filament_1777570194547_0009_oa3zeu8k_Carpaccio_medium.webp",
+            sidecar:
+              "filament_1777570194547_0009_oa3zeu8k_Carpaccio_medium.json",
+            seed: "oa3zeu8k",
+            palette: "Carpaccio",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570194547_0009_oa3zeu8k_Carpaccio_medium_thumb.webp",
+          },
+          {
+            tokenId: 35,
+            filename:
+              "filament_1777570198501_0014_last487p_Carpaccio_large.webp",
+            sidecar:
+              "filament_1777570198501_0014_last487p_Carpaccio_large.json",
+            seed: "last487p",
+            palette: "Carpaccio",
+            scale: "large",
+            style: "thin",
+            thumbnail:
+              "filament_1777570198501_0014_last487p_Carpaccio_large_thumb.webp",
+          },
+          {
+            tokenId: 36,
+            filename:
+              "filament_1777666651277_0048_9xwzt48w_Carpaccio_jumbo.webp",
+            sidecar:
+              "filament_1777666651277_0048_9xwzt48w_Carpaccio_jumbo.json",
+            seed: "9xwzt48w",
+            palette: "Carpaccio",
+            scale: "jumbo",
+            style: "thin",
+            thumbnail:
+              "filament_1777666651277_0048_9xwzt48w_Carpaccio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 37,
+            filename:
+              "filament_1777666825583_0035_r78iear0_Carpaccio_medium.webp",
+            sidecar:
+              "filament_1777666825583_0035_r78iear0_Carpaccio_medium.json",
+            seed: "r78iear0",
+            palette: "Carpaccio",
+            scale: "medium",
+            style: "thin",
+            thumbnail:
+              "filament_1777666825583_0035_r78iear0_Carpaccio_medium_thumb.webp",
+          },
+          {
+            tokenId: 38,
+            filename:
+              "filament_1777666838201_0048_y3tnn8fk_Carpaccio_mixed.webp",
+            sidecar:
+              "filament_1777666838201_0048_y3tnn8fk_Carpaccio_mixed.json",
+            seed: "y3tnn8fk",
+            palette: "Carpaccio",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666838201_0048_y3tnn8fk_Carpaccio_mixed_thumb.webp",
+          },
+          {
+            tokenId: 39,
+            filename:
+              "filament_1777667025808_0013_wu2n40v8_Carpaccio_large.webp",
+            sidecar:
+              "filament_1777667025808_0013_wu2n40v8_Carpaccio_large.json",
+            seed: "wu2n40v8",
+            palette: "Carpaccio",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667025808_0013_wu2n40v8_Carpaccio_large_thumb.webp",
+          },
+          {
+            tokenId: 40,
+            filename:
+              "filament_1777667051810_0007_i9df45eb_Carpaccio_jumbo.webp",
+            sidecar:
+              "filament_1777667051810_0007_i9df45eb_Carpaccio_jumbo.json",
+            seed: "i9df45eb",
+            palette: "Carpaccio",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667051810_0007_i9df45eb_Carpaccio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 41,
+            filename:
+              "filament_1777667164816_0055_rpltr6d1_Carpaccio_jumbo.webp",
+            sidecar:
+              "filament_1777667164816_0055_rpltr6d1_Carpaccio_jumbo.json",
+            seed: "rpltr6d1",
+            palette: "Carpaccio",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667164816_0055_rpltr6d1_Carpaccio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 42,
+            filename:
+              "filament_1777667171819_0064_jeivsnng_Carpaccio_medium.webp",
+            sidecar:
+              "filament_1777667171819_0064_jeivsnng_Carpaccio_medium.json",
+            seed: "jeivsnng",
+            palette: "Carpaccio",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667171819_0064_jeivsnng_Carpaccio_medium_thumb.webp",
+          },
+          {
+            tokenId: 43,
+            filename:
+              "filament_1777667188326_0083_553wwefd_Carpaccio_mixed.webp",
+            sidecar:
+              "filament_1777667188326_0083_553wwefd_Carpaccio_mixed.json",
+            seed: "553wwefd",
+            palette: "Carpaccio",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667188326_0083_553wwefd_Carpaccio_mixed_thumb.webp",
+          },
+          {
+            tokenId: 44,
+            filename:
+              "filament_1777667190402_0085_fqvb27v2_Carpaccio_large.webp",
+            sidecar:
+              "filament_1777667190402_0085_fqvb27v2_Carpaccio_large.json",
+            seed: "fqvb27v2",
+            palette: "Carpaccio",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667190402_0085_fqvb27v2_Carpaccio_large_thumb.webp",
+          },
+          {
+            tokenId: 45,
+            filename:
+              "filament_1777569255343_0001_43xhph8q_Appennino_mixed.webp",
+            sidecar:
+              "filament_1777569255343_0001_43xhph8q_Appennino_mixed.json",
+            seed: "43xhph8q",
+            palette: "Appennino",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777569255343_0001_43xhph8q_Appennino_mixed_thumb.webp",
+          },
+          {
+            tokenId: 46,
+            filename:
+              "filament_1777569597397_0098_fab0vj66_Appennino_jumbo.webp",
+            sidecar:
+              "filament_1777569597397_0098_fab0vj66_Appennino_jumbo.json",
+            seed: "fab0vj66",
+            palette: "Appennino",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569597397_0098_fab0vj66_Appennino_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 47,
+            filename:
+              "filament_1777569600431_0103_s489rkr4_Appennino_jumbo.webp",
+            sidecar:
+              "filament_1777569600431_0103_s489rkr4_Appennino_jumbo.json",
+            seed: "s489rkr4",
+            palette: "Appennino",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569600431_0103_s489rkr4_Appennino_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 48,
+            filename:
+              "filament_1777569608050_0112_u78jqwsz_Appennino_jumbo.webp",
+            sidecar:
+              "filament_1777569608050_0112_u78jqwsz_Appennino_jumbo.json",
+            seed: "u78jqwsz",
+            palette: "Appennino",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569608050_0112_u78jqwsz_Appennino_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 49,
+            filename:
+              "filament_1777569622473_0136_xsxa459x_Appennino_jumbo.webp",
+            sidecar:
+              "filament_1777569622473_0136_xsxa459x_Appennino_jumbo.json",
+            seed: "xsxa459x",
+            palette: "Appennino",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569622473_0136_xsxa459x_Appennino_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 50,
+            filename:
+              "filament_1777569626868_0142_j62j1opp_Appennino_jumbo.webp",
+            sidecar:
+              "filament_1777569626868_0142_j62j1opp_Appennino_jumbo.json",
+            seed: "j62j1opp",
+            palette: "Appennino",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569626868_0142_j62j1opp_Appennino_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 51,
+            filename:
+              "filament_1777570047538_0013_uq16veof_Appennino_medium.webp",
+            sidecar:
+              "filament_1777570047538_0013_uq16veof_Appennino_medium.json",
+            seed: "uq16veof",
+            palette: "Appennino",
+            scale: "medium",
+            style: "thin",
+            thumbnail:
+              "filament_1777570047538_0013_uq16veof_Appennino_medium_thumb.webp",
+          },
+          {
+            tokenId: 52,
+            filename:
+              "filament_1777570134462_0085_smbcycqp_Appennino_mixed.webp",
+            sidecar:
+              "filament_1777570134462_0085_smbcycqp_Appennino_mixed.json",
+            seed: "smbcycqp",
+            palette: "Appennino",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777570134462_0085_smbcycqp_Appennino_mixed_thumb.webp",
+          },
+          {
+            tokenId: 53,
+            filename:
+              "filament_1777570304581_0072_70al60ai_Appennino_micro.webp",
+            sidecar:
+              "filament_1777570304581_0072_70al60ai_Appennino_micro.json",
+            seed: "70al60ai",
+            palette: "Appennino",
+            scale: "micro",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570304581_0072_70al60ai_Appennino_micro_thumb.webp",
+          },
+          {
+            tokenId: 54,
+            filename:
+              "filament_1777570347076_0095_mvamik91_Appennino_mixed.webp",
+            sidecar:
+              "filament_1777570347076_0095_mvamik91_Appennino_mixed.json",
+            seed: "mvamik91",
+            palette: "Appennino",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570347076_0095_mvamik91_Appennino_mixed_thumb.webp",
+          },
+          {
+            tokenId: 55,
+            filename:
+              "filament_1777666610513_0005_x9iw1cj4_Appennino_medium.webp",
+            sidecar:
+              "filament_1777666610513_0005_x9iw1cj4_Appennino_medium.json",
+            seed: "x9iw1cj4",
+            palette: "Appennino",
+            scale: "medium",
+            style: "beads",
+            thumbnail:
+              "filament_1777666610513_0005_x9iw1cj4_Appennino_medium_thumb.webp",
+          },
+          {
+            tokenId: 56,
+            filename:
+              "filament_1777666794729_0001_ln1y1nzd_Appennino_medium.webp",
+            sidecar:
+              "filament_1777666794729_0001_ln1y1nzd_Appennino_medium.json",
+            seed: "ln1y1nzd",
+            palette: "Appennino",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666794729_0001_ln1y1nzd_Appennino_medium_thumb.webp",
+          },
+          {
+            tokenId: 57,
+            filename:
+              "filament_1777666802843_0009_zyk5fn5r_Appennino_medium.webp",
+            sidecar:
+              "filament_1777666802843_0009_zyk5fn5r_Appennino_medium.json",
+            seed: "zyk5fn5r",
+            palette: "Appennino",
+            scale: "medium",
+            style: "beads",
+            thumbnail:
+              "filament_1777666802843_0009_zyk5fn5r_Appennino_medium_thumb.webp",
+          },
+          {
+            tokenId: 58,
+            filename:
+              "filament_1777667034669_0005_y2xna7is_Appennino_large.webp",
+            sidecar:
+              "filament_1777667034669_0005_y2xna7is_Appennino_large.json",
+            seed: "y2xna7is",
+            palette: "Appennino",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667034669_0005_y2xna7is_Appennino_large_thumb.webp",
+          },
+          {
+            tokenId: 59,
+            filename:
+              "filament_1777667077699_0034_4m5osk7f_Appennino_jumbo.webp",
+            sidecar:
+              "filament_1777667077699_0034_4m5osk7f_Appennino_jumbo.json",
+            seed: "4m5osk7f",
+            palette: "Appennino",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667077699_0034_4m5osk7f_Appennino_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 60,
+            filename:
+              "filament_1777568369497_0001_zvm9tfiz_Notturno_mixed.webp",
+            sidecar: "filament_1777568369497_0001_zvm9tfiz_Notturno_mixed.json",
+            seed: "zvm9tfiz",
+            palette: "Notturno",
+            scale: "mixed",
+            style: "thin",
+            thumbnail:
+              "filament_1777568369497_0001_zvm9tfiz_Notturno_mixed_thumb.webp",
+          },
+          {
+            tokenId: 61,
+            filename:
+              "filament_1777569327981_0012_zo8k4yfx_Notturno_jumbo.webp",
+            sidecar: "filament_1777569327981_0012_zo8k4yfx_Notturno_jumbo.json",
+            seed: "zo8k4yfx",
+            palette: "Notturno",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569327981_0012_zo8k4yfx_Notturno_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 62,
+            filename:
+              "filament_1777570052990_0017_fnu89i92_Notturno_medium.webp",
+            sidecar:
+              "filament_1777570052990_0017_fnu89i92_Notturno_medium.json",
+            seed: "fnu89i92",
+            palette: "Notturno",
+            scale: "medium",
+            style: "beads",
+            thumbnail:
+              "filament_1777570052990_0017_fnu89i92_Notturno_medium_thumb.webp",
+          },
+          {
+            tokenId: 63,
+            filename:
+              "filament_1777666641739_0038_sd8ekdjg_Notturno_large.webp",
+            sidecar: "filament_1777666641739_0038_sd8ekdjg_Notturno_large.json",
+            seed: "sd8ekdjg",
+            palette: "Notturno",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777666641739_0038_sd8ekdjg_Notturno_large_thumb.webp",
+          },
+          {
+            tokenId: 64,
+            filename:
+              "filament_1777666806352_0013_qoeamcbm_Notturno_large.webp",
+            sidecar: "filament_1777666806352_0013_qoeamcbm_Notturno_large.json",
+            seed: "qoeamcbm",
+            palette: "Notturno",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666806352_0013_qoeamcbm_Notturno_large_thumb.webp",
+          },
+          {
+            tokenId: 65,
+            filename:
+              "filament_1777666819262_0028_l650oczj_Notturno_medium.webp",
+            sidecar:
+              "filament_1777666819262_0028_l650oczj_Notturno_medium.json",
+            seed: "l650oczj",
+            palette: "Notturno",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666819262_0028_l650oczj_Notturno_medium_thumb.webp",
+          },
+          {
+            tokenId: 66,
+            filename:
+              "filament_1777667194090_0089_zd7dtu2f_Notturno_medium.webp",
+            sidecar:
+              "filament_1777667194090_0089_zd7dtu2f_Notturno_medium.json",
+            seed: "zd7dtu2f",
+            palette: "Notturno",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667194090_0089_zd7dtu2f_Notturno_medium_thumb.webp",
+          },
+          {
+            tokenId: 67,
+            filename: "filament_1777568402446_0005_6ymmxau5_Piero_jumbo.webp",
+            sidecar: "filament_1777568402446_0005_6ymmxau5_Piero_jumbo.json",
+            seed: "6ymmxau5",
+            palette: "Piero",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777568402446_0005_6ymmxau5_Piero_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 68,
+            filename: "filament_1777569572138_0057_04q5qjoe_Piero_jumbo.webp",
+            sidecar: "filament_1777569572138_0057_04q5qjoe_Piero_jumbo.json",
+            seed: "04q5qjoe",
+            palette: "Piero",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569572138_0057_04q5qjoe_Piero_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 69,
+            filename: "filament_1777569581406_0072_ws4adz66_Piero_jumbo.webp",
+            sidecar: "filament_1777569581406_0072_ws4adz66_Piero_jumbo.json",
+            seed: "ws4adz66",
+            palette: "Piero",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569581406_0072_ws4adz66_Piero_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 70,
+            filename: "filament_1777666827421_0037_69qtment_Piero_medium.webp",
+            sidecar: "filament_1777666827421_0037_69qtment_Piero_medium.json",
+            seed: "69qtment",
+            palette: "Piero",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666827421_0037_69qtment_Piero_medium_thumb.webp",
+          },
+          {
+            tokenId: 71,
+            filename: "filament_1777667076367_0032_sxyat72i_Piero_mixed.webp",
+            sidecar: "filament_1777667076367_0032_sxyat72i_Piero_mixed.json",
+            seed: "sxyat72i",
+            palette: "Piero",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667076367_0032_sxyat72i_Piero_mixed_thumb.webp",
+          },
+          {
+            tokenId: 72,
+            filename: "filament_1777667133652_0023_3w8hf6d4_Piero_medium.webp",
+            sidecar: "filament_1777667133652_0023_3w8hf6d4_Piero_medium.json",
+            seed: "3w8hf6d4",
+            palette: "Piero",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667133652_0023_3w8hf6d4_Piero_medium_thumb.webp",
+          },
+          {
+            tokenId: 73,
+            filename: "filament_1777667216271_0117_089hg65o_Piero_large.webp",
+            sidecar: "filament_1777667216271_0117_089hg65o_Piero_large.json",
+            seed: "089hg65o",
+            palette: "Piero",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667216271_0117_089hg65o_Piero_large_thumb.webp",
+          },
+          {
+            tokenId: 74,
+            filename: "filament_1777667235966_0138_k6087fp1_Piero_mixed.webp",
+            sidecar: "filament_1777667235966_0138_k6087fp1_Piero_mixed.json",
+            seed: "k6087fp1",
+            palette: "Piero",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667235966_0138_k6087fp1_Piero_mixed_thumb.webp",
+          },
+          {
+            tokenId: 75,
+            filename: "filament_1777569319074_0005_qop0f6kz_Marche_jumbo.webp",
+            sidecar: "filament_1777569319074_0005_qop0f6kz_Marche_jumbo.json",
+            seed: "qop0f6kz",
+            palette: "Marche",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569319074_0005_qop0f6kz_Marche_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 76,
+            filename: "filament_1777569530054_0001_avxv9a62_Marche_jumbo.webp",
+            sidecar: "filament_1777569530054_0001_avxv9a62_Marche_jumbo.json",
+            seed: "avxv9a62",
+            palette: "Marche",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569530054_0001_avxv9a62_Marche_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 77,
+            filename: "filament_1777570148645_0093_nkn8iaa3_Marche_micro.webp",
+            sidecar: "filament_1777570148645_0093_nkn8iaa3_Marche_micro.json",
+            seed: "nkn8iaa3",
+            palette: "Marche",
+            scale: "micro",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570148645_0093_nkn8iaa3_Marche_micro_thumb.webp",
+          },
+          {
+            tokenId: 78,
+            filename: "filament_1777570274142_0054_qeu6og1d_Marche_small.webp",
+            sidecar: "filament_1777570274142_0054_qeu6og1d_Marche_small.json",
+            seed: "qeu6og1d",
+            palette: "Marche",
+            scale: "small",
+            style: "beads",
+            thumbnail:
+              "filament_1777570274142_0054_qeu6og1d_Marche_small_thumb.webp",
+          },
+          {
+            tokenId: 79,
+            filename: "filament_1777666622737_0018_c1d3uupv_Marche_mixed.webp",
+            sidecar: "filament_1777666622737_0018_c1d3uupv_Marche_mixed.json",
+            seed: "c1d3uupv",
+            palette: "Marche",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777666622737_0018_c1d3uupv_Marche_mixed_thumb.webp",
+          },
+          {
+            tokenId: 80,
+            filename: "filament_1777667078601_0035_1v19ad3z_Marche_mixed.webp",
+            sidecar: "filament_1777667078601_0035_1v19ad3z_Marche_mixed.json",
+            seed: "1v19ad3z",
+            palette: "Marche",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667078601_0035_1v19ad3z_Marche_mixed_thumb.webp",
+          },
+          {
+            tokenId: 81,
+            filename: "filament_1777667136375_0026_f0jvqguk_Marche_mixed.webp",
+            sidecar: "filament_1777667136375_0026_f0jvqguk_Marche_mixed.json",
+            seed: "f0jvqguk",
+            palette: "Marche",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667136375_0026_f0jvqguk_Marche_mixed_thumb.webp",
+          },
+          {
+            tokenId: 82,
+            filename: "filament_1777667140039_0030_ancolutg_Marche_mixed.webp",
+            sidecar: "filament_1777667140039_0030_ancolutg_Marche_mixed.json",
+            seed: "ancolutg",
+            palette: "Marche",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667140039_0030_ancolutg_Marche_mixed_thumb.webp",
+          },
+          {
+            tokenId: 83,
+            filename: "filament_1777667189522_0084_68l05il2_Marche_medium.webp",
+            sidecar: "filament_1777667189522_0084_68l05il2_Marche_medium.json",
+            seed: "68l05il2",
+            palette: "Marche",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667189522_0084_68l05il2_Marche_medium_thumb.webp",
+          },
+          {
+            tokenId: 84,
+            filename: "filament_1777667211380_0110_c4hrxi8p_Marche_medium.webp",
+            sidecar: "filament_1777667211380_0110_c4hrxi8p_Marche_medium.json",
+            seed: "c4hrxi8p",
+            palette: "Marche",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667211380_0110_c4hrxi8p_Marche_medium_thumb.webp",
+          },
+          {
+            tokenId: 85,
+            filename: "filament_1777568371123_0002_v6z0qjq6_Pesaro_small.webp",
+            sidecar: "filament_1777568371123_0002_v6z0qjq6_Pesaro_small.json",
+            seed: "v6z0qjq6",
+            palette: "Pesaro",
+            scale: "small",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777568371123_0002_v6z0qjq6_Pesaro_small_thumb.webp",
+          },
+          {
+            tokenId: 86,
+            filename: "filament_1777569579079_0068_bcx67x7x_Pesaro_jumbo.webp",
+            sidecar: "filament_1777569579079_0068_bcx67x7x_Pesaro_jumbo.json",
+            seed: "bcx67x7x",
+            palette: "Pesaro",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569579079_0068_bcx67x7x_Pesaro_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 87,
+            filename: "filament_1777569591931_0089_pep8fv7p_Pesaro_jumbo.webp",
+            sidecar: "filament_1777569591931_0089_pep8fv7p_Pesaro_jumbo.json",
+            seed: "pep8fv7p",
+            palette: "Pesaro",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569591931_0089_pep8fv7p_Pesaro_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 88,
+            filename: "filament_1777569595008_0094_qvfykvxc_Pesaro_jumbo.webp",
+            sidecar: "filament_1777569595008_0094_qvfykvxc_Pesaro_jumbo.json",
+            seed: "qvfykvxc",
+            palette: "Pesaro",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569595008_0094_qvfykvxc_Pesaro_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 89,
+            filename: "filament_1777569659337_0195_gtlknsu0_Pesaro_jumbo.webp",
+            sidecar: "filament_1777569659337_0195_gtlknsu0_Pesaro_jumbo.json",
+            seed: "gtlknsu0",
+            palette: "Pesaro",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569659337_0195_gtlknsu0_Pesaro_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 90,
+            filename: "filament_1777570057379_0020_nsevur0w_Pesaro_small.webp",
+            sidecar: "filament_1777570057379_0020_nsevur0w_Pesaro_small.json",
+            seed: "nsevur0w",
+            palette: "Pesaro",
+            scale: "small",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570057379_0020_nsevur0w_Pesaro_small_thumb.webp",
+          },
+          {
+            tokenId: 91,
+            filename: "filament_1777570094625_0054_o3p7797k_Pesaro_micro.webp",
+            sidecar: "filament_1777570094625_0054_o3p7797k_Pesaro_micro.json",
+            seed: "o3p7797k",
+            palette: "Pesaro",
+            scale: "micro",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570094625_0054_o3p7797k_Pesaro_micro_thumb.webp",
+          },
+          {
+            tokenId: 92,
+            filename: "filament_1777570121372_0075_yvwa5q53_Pesaro_small.webp",
+            sidecar: "filament_1777570121372_0075_yvwa5q53_Pesaro_small.json",
+            seed: "yvwa5q53",
+            palette: "Pesaro",
+            scale: "small",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570121372_0075_yvwa5q53_Pesaro_small_thumb.webp",
+          },
+          {
+            tokenId: 93,
+            filename: "filament_1777570152747_0095_64er211n_Pesaro_mixed.webp",
+            sidecar: "filament_1777570152747_0095_64er211n_Pesaro_mixed.json",
+            seed: "64er211n",
+            palette: "Pesaro",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570152747_0095_64er211n_Pesaro_mixed_thumb.webp",
+          },
+          {
+            tokenId: 94,
+            filename: "filament_1777570301015_0071_3pio8nvg_Pesaro_small.webp",
+            sidecar: "filament_1777570301015_0071_3pio8nvg_Pesaro_small.json",
+            seed: "3pio8nvg",
+            palette: "Pesaro",
+            scale: "small",
+            style: "beads",
+            thumbnail:
+              "filament_1777570301015_0071_3pio8nvg_Pesaro_small_thumb.webp",
+          },
+          {
+            tokenId: 95,
+            filename: "filament_1777666807149_0014_dbb14hgu_Pesaro_large.webp",
+            sidecar: "filament_1777666807149_0014_dbb14hgu_Pesaro_large.json",
+            seed: "dbb14hgu",
+            palette: "Pesaro",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666807149_0014_dbb14hgu_Pesaro_large_thumb.webp",
+          },
+          {
+            tokenId: 96,
+            filename: "filament_1777666817673_0026_rlhz5orn_Pesaro_jumbo.webp",
+            sidecar: "filament_1777666817673_0026_rlhz5orn_Pesaro_jumbo.json",
+            seed: "rlhz5orn",
+            palette: "Pesaro",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777666817673_0026_rlhz5orn_Pesaro_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 97,
+            filename: "filament_1777667084308_0041_hsoui2ms_Pesaro_mixed.webp",
+            sidecar: "filament_1777667084308_0041_hsoui2ms_Pesaro_mixed.json",
+            seed: "hsoui2ms",
+            palette: "Pesaro",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667084308_0041_hsoui2ms_Pesaro_mixed_thumb.webp",
+          },
+          {
+            tokenId: 98,
+            filename: "filament_1777667091585_0047_skdvqete_Pesaro_mixed.webp",
+            sidecar: "filament_1777667091585_0047_skdvqete_Pesaro_mixed.json",
+            seed: "skdvqete",
+            palette: "Pesaro",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667091585_0047_skdvqete_Pesaro_mixed_thumb.webp",
+          },
+          {
+            tokenId: 99,
+            filename: "filament_1777667093497_0049_wlwk3qgz_Pesaro_medium.webp",
+            sidecar: "filament_1777667093497_0049_wlwk3qgz_Pesaro_medium.json",
+            seed: "wlwk3qgz",
+            palette: "Pesaro",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667093497_0049_wlwk3qgz_Pesaro_medium_thumb.webp",
+          },
+          {
+            tokenId: 100,
+            filename: "filament_1777667150718_0043_w5am3pr8_Pesaro_medium.webp",
+            sidecar: "filament_1777667150718_0043_w5am3pr8_Pesaro_medium.json",
+            seed: "w5am3pr8",
+            palette: "Pesaro",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667150718_0043_w5am3pr8_Pesaro_medium_thumb.webp",
+          },
+          {
+            tokenId: 101,
+            filename: "filament_1777667215545_0116_lnhtmbl2_Pesaro_mixed.webp",
+            sidecar: "filament_1777667215545_0116_lnhtmbl2_Pesaro_mixed.json",
+            seed: "lnhtmbl2",
+            palette: "Pesaro",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667215545_0116_lnhtmbl2_Pesaro_mixed_thumb.webp",
+          },
+          {
+            tokenId: 102,
+            filename: "filament_1777667227569_0129_71y9n6t8_Pesaro_mixed.webp",
+            sidecar: "filament_1777667227569_0129_71y9n6t8_Pesaro_mixed.json",
+            seed: "71y9n6t8",
+            palette: "Pesaro",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667227569_0129_71y9n6t8_Pesaro_mixed_thumb.webp",
+          },
+          {
+            tokenId: 103,
+            filename: "filament_1777569192497_0009_4vdp99tz_Foglio_large.webp",
+            sidecar: "filament_1777569192497_0009_4vdp99tz_Foglio_large.json",
+            seed: "4vdp99tz",
+            palette: "Foglio",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777569192497_0009_4vdp99tz_Foglio_large_thumb.webp",
+          },
+          {
+            tokenId: 104,
+            filename: "filament_1777569263788_0008_s89hkfbp_Foglio_mixed.webp",
+            sidecar: "filament_1777569263788_0008_s89hkfbp_Foglio_mixed.json",
+            seed: "s89hkfbp",
+            palette: "Foglio",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777569263788_0008_s89hkfbp_Foglio_mixed_thumb.webp",
+          },
+          {
+            tokenId: 105,
+            filename: "filament_1777569621064_0134_z2s3897v_Foglio_jumbo.webp",
+            sidecar: "filament_1777569621064_0134_z2s3897v_Foglio_jumbo.json",
+            seed: "z2s3897v",
+            palette: "Foglio",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569621064_0134_z2s3897v_Foglio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 106,
+            filename: "filament_1777569631266_0149_8hbrv84a_Foglio_jumbo.webp",
+            sidecar: "filament_1777569631266_0149_8hbrv84a_Foglio_jumbo.json",
+            seed: "8hbrv84a",
+            palette: "Foglio",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569631266_0149_8hbrv84a_Foglio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 107,
+            filename: "filament_1777569653816_0185_ubyuf2um_Foglio_jumbo.webp",
+            sidecar: "filament_1777569653816_0185_ubyuf2um_Foglio_jumbo.json",
+            seed: "ubyuf2um",
+            palette: "Foglio",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569653816_0185_ubyuf2um_Foglio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 108,
+            filename: "filament_1777569657777_0192_665udtvz_Foglio_jumbo.webp",
+            sidecar: "filament_1777569657777_0192_665udtvz_Foglio_jumbo.json",
+            seed: "665udtvz",
+            palette: "Foglio",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569657777_0192_665udtvz_Foglio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 109,
+            filename: "filament_1777569920402_0010_7bbdf87z_Foglio_jumbo.webp",
+            sidecar: "filament_1777569920402_0010_7bbdf87z_Foglio_jumbo.json",
+            seed: "7bbdf87z",
+            palette: "Foglio",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569920402_0010_7bbdf87z_Foglio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 110,
+            filename: "filament_1777570051397_0015_82uhzigo_Foglio_micro.webp",
+            sidecar: "filament_1777570051397_0015_82uhzigo_Foglio_micro.json",
+            seed: "82uhzigo",
+            palette: "Foglio",
+            scale: "micro",
+            style: "beads",
+            thumbnail:
+              "filament_1777570051397_0015_82uhzigo_Foglio_micro_thumb.webp",
+          },
+          {
+            tokenId: 111,
+            filename: "filament_1777570055815_0019_qd2o5p3l_Foglio_mixed.webp",
+            sidecar: "filament_1777570055815_0019_qd2o5p3l_Foglio_mixed.json",
+            seed: "qd2o5p3l",
+            palette: "Foglio",
+            scale: "mixed",
+            style: "thin",
+            thumbnail:
+              "filament_1777570055815_0019_qd2o5p3l_Foglio_mixed_thumb.webp",
+          },
+          {
+            tokenId: 112,
+            filename: "filament_1777570088131_0052_olfp7twr_Foglio_medium.webp",
+            sidecar: "filament_1777570088131_0052_olfp7twr_Foglio_medium.json",
+            seed: "olfp7twr",
+            palette: "Foglio",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570088131_0052_olfp7twr_Foglio_medium_thumb.webp",
+          },
+          {
+            tokenId: 113,
+            filename: "filament_1777570220130_0033_s3i0fqia_Foglio_mixed.webp",
+            sidecar: "filament_1777570220130_0033_s3i0fqia_Foglio_mixed.json",
+            seed: "s3i0fqia",
+            palette: "Foglio",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777570220130_0033_s3i0fqia_Foglio_mixed_thumb.webp",
+          },
+          {
+            tokenId: 114,
+            filename: "filament_1777570263729_0049_p7up9zer_Foglio_small.webp",
+            sidecar: "filament_1777570263729_0049_p7up9zer_Foglio_small.json",
+            seed: "p7up9zer",
+            palette: "Foglio",
+            scale: "small",
+            style: "beads",
+            thumbnail:
+              "filament_1777570263729_0049_p7up9zer_Foglio_small_thumb.webp",
+          },
+          {
+            tokenId: 115,
+            filename: "filament_1777570348766_0096_i9bnjqtx_Foglio_micro.webp",
+            sidecar: "filament_1777570348766_0096_i9bnjqtx_Foglio_micro.json",
+            seed: "i9bnjqtx",
+            palette: "Foglio",
+            scale: "micro",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570348766_0096_i9bnjqtx_Foglio_micro_thumb.webp",
+          },
+          {
+            tokenId: 116,
+            filename: "filament_1777666621031_0016_uk1ez4hm_Foglio_medium.webp",
+            sidecar: "filament_1777666621031_0016_uk1ez4hm_Foglio_medium.json",
+            seed: "uk1ez4hm",
+            palette: "Foglio",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666621031_0016_uk1ez4hm_Foglio_medium_thumb.webp",
+          },
+          {
+            tokenId: 117,
+            filename: "filament_1777666796303_0003_78gx48v0_Foglio_large.webp",
+            sidecar: "filament_1777666796303_0003_78gx48v0_Foglio_large.json",
+            seed: "78gx48v0",
+            palette: "Foglio",
+            scale: "large",
+            style: "thin",
+            thumbnail:
+              "filament_1777666796303_0003_78gx48v0_Foglio_large_thumb.webp",
+          },
+          {
+            tokenId: 118,
+            filename: "filament_1777667036965_0008_ahjmgz9h_Foglio_mixed.webp",
+            sidecar: "filament_1777667036965_0008_ahjmgz9h_Foglio_mixed.json",
+            seed: "ahjmgz9h",
+            palette: "Foglio",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667036965_0008_ahjmgz9h_Foglio_mixed_thumb.webp",
+          },
+          {
+            tokenId: 119,
+            filename: "filament_1777667077134_0033_oce091un_Foglio_large.webp",
+            sidecar: "filament_1777667077134_0033_oce091un_Foglio_large.json",
+            seed: "oce091un",
+            palette: "Foglio",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667077134_0033_oce091un_Foglio_large_thumb.webp",
+          },
+          {
+            tokenId: 120,
+            filename: "filament_1777667195736_0091_uryqm3dl_Foglio_jumbo.webp",
+            sidecar: "filament_1777667195736_0091_uryqm3dl_Foglio_jumbo.json",
+            seed: "uryqm3dl",
+            palette: "Foglio",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667195736_0091_uryqm3dl_Foglio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 121,
+            filename: "filament_1777667198626_0094_ysn6e8cr_Foglio_mixed.webp",
+            sidecar: "filament_1777667198626_0094_ysn6e8cr_Foglio_mixed.json",
+            seed: "ysn6e8cr",
+            palette: "Foglio",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667198626_0094_ysn6e8cr_Foglio_mixed_thumb.webp",
+          },
+          {
+            tokenId: 122,
+            filename: "filament_vy8w8lsz_Foglio_jumbo.webp",
+            sidecar: "filament_vy8w8lsz_Foglio_jumbo.json",
+            seed: "vy8w8lsz",
+            palette: "Foglio",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail: "filament_vy8w8lsz_Foglio_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 123,
+            filename:
+              "filament_1777569190303_0008_6ey394is_Raffaello_large.webp",
+            sidecar:
+              "filament_1777569190303_0008_6ey394is_Raffaello_large.json",
+            seed: "6ey394is",
+            palette: "Raffaello",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777569190303_0008_6ey394is_Raffaello_large_thumb.webp",
+          },
+          {
+            tokenId: 124,
+            filename:
+              "filament_1777569269423_0014_y32llf0f_Raffaello_mixed.webp",
+            sidecar:
+              "filament_1777569269423_0014_y32llf0f_Raffaello_mixed.json",
+            seed: "y32llf0f",
+            palette: "Raffaello",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777569269423_0014_y32llf0f_Raffaello_mixed_thumb.webp",
+          },
+          {
+            tokenId: 125,
+            filename:
+              "filament_1777569272139_0016_id3v5j71_Raffaello_large.webp",
+            sidecar:
+              "filament_1777569272139_0016_id3v5j71_Raffaello_large.json",
+            seed: "id3v5j71",
+            palette: "Raffaello",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777569272139_0016_id3v5j71_Raffaello_large_thumb.webp",
+          },
+          {
+            tokenId: 126,
+            filename:
+              "filament_1777569274966_0018_m6d9qvdt_Raffaello_mixed.webp",
+            sidecar:
+              "filament_1777569274966_0018_m6d9qvdt_Raffaello_mixed.json",
+            seed: "m6d9qvdt",
+            palette: "Raffaello",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777569274966_0018_m6d9qvdt_Raffaello_mixed_thumb.webp",
+          },
+          {
+            tokenId: 127,
+            filename:
+              "filament_1777569632543_0151_kld9rq81_Raffaello_jumbo.webp",
+            sidecar:
+              "filament_1777569632543_0151_kld9rq81_Raffaello_jumbo.json",
+            seed: "kld9rq81",
+            palette: "Raffaello",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569632543_0151_kld9rq81_Raffaello_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 128,
+            filename:
+              "filament_1777569655139_0187_bf02y45p_Raffaello_jumbo.webp",
+            sidecar:
+              "filament_1777569655139_0187_bf02y45p_Raffaello_jumbo.json",
+            seed: "bf02y45p",
+            palette: "Raffaello",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569655139_0187_bf02y45p_Raffaello_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 129,
+            filename:
+              "filament_1777570046079_0011_eg1ezvyc_Raffaello_jumbo.webp",
+            sidecar:
+              "filament_1777570046079_0011_eg1ezvyc_Raffaello_jumbo.json",
+            seed: "eg1ezvyc",
+            palette: "Raffaello",
+            scale: "jumbo",
+            style: "thin",
+            thumbnail:
+              "filament_1777570046079_0011_eg1ezvyc_Raffaello_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 130,
+            filename:
+              "filament_1777666797775_0004_4hlsd48w_Raffaello_mixed.webp",
+            sidecar:
+              "filament_1777666797775_0004_4hlsd48w_Raffaello_mixed.json",
+            seed: "4hlsd48w",
+            palette: "Raffaello",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777666797775_0004_4hlsd48w_Raffaello_mixed_thumb.webp",
+          },
+          {
+            tokenId: 131,
+            filename:
+              "filament_1777666809475_0017_0qqmif4w_Raffaello_jumbo.webp",
+            sidecar:
+              "filament_1777666809475_0017_0qqmif4w_Raffaello_jumbo.json",
+            seed: "0qqmif4w",
+            palette: "Raffaello",
+            scale: "jumbo",
+            style: "thin",
+            thumbnail:
+              "filament_1777666809475_0017_0qqmif4w_Raffaello_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 132,
+            filename:
+              "filament_1777666826559_0036_grw4f784_Raffaello_medium.webp",
+            sidecar:
+              "filament_1777666826559_0036_grw4f784_Raffaello_medium.json",
+            seed: "grw4f784",
+            palette: "Raffaello",
+            scale: "medium",
+            style: "beads",
+            thumbnail:
+              "filament_1777666826559_0036_grw4f784_Raffaello_medium_thumb.webp",
+          },
+          {
+            tokenId: 133,
+            filename:
+              "filament_1777667026856_0014_zr42oix2_Raffaello_medium.webp",
+            sidecar:
+              "filament_1777667026856_0014_zr42oix2_Raffaello_medium.json",
+            seed: "zr42oix2",
+            palette: "Raffaello",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667026856_0014_zr42oix2_Raffaello_medium_thumb.webp",
+          },
+          {
+            tokenId: 134,
+            filename:
+              "filament_1777667135273_0025_jyr8f9ax_Raffaello_medium.webp",
+            sidecar:
+              "filament_1777667135273_0025_jyr8f9ax_Raffaello_medium.json",
+            seed: "jyr8f9ax",
+            palette: "Raffaello",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667135273_0025_jyr8f9ax_Raffaello_medium_thumb.webp",
+          },
+          {
+            tokenId: 135,
+            filename:
+              "filament_1777667202345_0099_6cfyeaci_Raffaello_large.webp",
+            sidecar:
+              "filament_1777667202345_0099_6cfyeaci_Raffaello_large.json",
+            seed: "6cfyeaci",
+            palette: "Raffaello",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667202345_0099_6cfyeaci_Raffaello_large_thumb.webp",
+          },
+          {
+            tokenId: 136,
+            filename:
+              "filament_1777667234707_0137_15m4dcco_Raffaello_medium.webp",
+            sidecar:
+              "filament_1777667234707_0137_15m4dcco_Raffaello_medium.json",
+            seed: "15m4dcco",
+            palette: "Raffaello",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667234707_0137_15m4dcco_Raffaello_medium_thumb.webp",
+          },
+          {
+            tokenId: 137,
+            filename: "filament_1777569316980_0004_u98cnqhg_Lucente_jumbo.webp",
+            sidecar: "filament_1777569316980_0004_u98cnqhg_Lucente_jumbo.json",
+            seed: "u98cnqhg",
+            palette: "Lucente",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569316980_0004_u98cnqhg_Lucente_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 138,
+            filename: "filament_1777569567827_0050_77t1c7gt_Lucente_jumbo.webp",
+            sidecar: "filament_1777569567827_0050_77t1c7gt_Lucente_jumbo.json",
+            seed: "77t1c7gt",
+            palette: "Lucente",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569567827_0050_77t1c7gt_Lucente_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 139,
+            filename: "filament_1777569583442_0075_0weo6zo6_Lucente_jumbo.webp",
+            sidecar: "filament_1777569583442_0075_0weo6zo6_Lucente_jumbo.json",
+            seed: "0weo6zo6",
+            palette: "Lucente",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569583442_0075_0weo6zo6_Lucente_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 140,
+            filename: "filament_1777570193655_0008_yy758k4n_Lucente_large.webp",
+            sidecar: "filament_1777570193655_0008_yy758k4n_Lucente_large.json",
+            seed: "yy758k4n",
+            palette: "Lucente",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777570193655_0008_yy758k4n_Lucente_large_thumb.webp",
+          },
+          {
+            tokenId: 141,
+            filename: "filament_1777570255951_0045_md4f4lgu_Lucente_micro.webp",
+            sidecar: "filament_1777570255951_0045_md4f4lgu_Lucente_micro.json",
+            seed: "md4f4lgu",
+            palette: "Lucente",
+            scale: "micro",
+            style: "beads",
+            thumbnail:
+              "filament_1777570255951_0045_md4f4lgu_Lucente_micro_thumb.webp",
+          },
+          {
+            tokenId: 142,
+            filename: "filament_1777666646101_0042_jos606ie_Lucente_large.webp",
+            sidecar: "filament_1777666646101_0042_jos606ie_Lucente_large.json",
+            seed: "jos606ie",
+            palette: "Lucente",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777666646101_0042_jos606ie_Lucente_large_thumb.webp",
+          },
+          {
+            tokenId: 143,
+            filename: "filament_1777666804369_0011_n1z46c4t_Lucente_jumbo.webp",
+            sidecar: "filament_1777666804369_0011_n1z46c4t_Lucente_jumbo.json",
+            seed: "n1z46c4t",
+            palette: "Lucente",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777666804369_0011_n1z46c4t_Lucente_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 144,
+            filename: "filament_1777667020173_0007_v6s6ocdz_Lucente_mixed.webp",
+            sidecar: "filament_1777667020173_0007_v6s6ocdz_Lucente_mixed.json",
+            seed: "v6s6ocdz",
+            palette: "Lucente",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777667020173_0007_v6s6ocdz_Lucente_mixed_thumb.webp",
+          },
+          {
+            tokenId: 145,
+            filename: "filament_1777667031118_0002_hoplmkpf_Lucente_mixed.webp",
+            sidecar: "filament_1777667031118_0002_hoplmkpf_Lucente_mixed.json",
+            seed: "hoplmkpf",
+            palette: "Lucente",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667031118_0002_hoplmkpf_Lucente_mixed_thumb.webp",
+          },
+          {
+            tokenId: 146,
+            filename: "filament_1777667092414_0048_4pr2lj4v_Lucente_large.webp",
+            sidecar: "filament_1777667092414_0048_4pr2lj4v_Lucente_large.json",
+            seed: "4pr2lj4v",
+            palette: "Lucente",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667092414_0048_4pr2lj4v_Lucente_large_thumb.webp",
+          },
+          {
+            tokenId: 147,
+            filename: "filament_1777667123899_0011_44nodby8_Lucente_mixed.webp",
+            sidecar: "filament_1777667123899_0011_44nodby8_Lucente_mixed.json",
+            seed: "44nodby8",
+            palette: "Lucente",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667123899_0011_44nodby8_Lucente_mixed_thumb.webp",
+          },
+          {
+            tokenId: 148,
+            filename:
+              "filament_1777667154469_0046_7z3d720w_Lucente_medium.webp",
+            sidecar: "filament_1777667154469_0046_7z3d720w_Lucente_medium.json",
+            seed: "7z3d720w",
+            palette: "Lucente",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667154469_0046_7z3d720w_Lucente_medium_thumb.webp",
+          },
+          {
+            tokenId: 149,
+            filename:
+              "filament_1777667207016_0103_8th46grv_Lucente_medium.webp",
+            sidecar: "filament_1777667207016_0103_8th46grv_Lucente_medium.json",
+            seed: "8th46grv",
+            palette: "Lucente",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667207016_0103_8th46grv_Lucente_medium_thumb.webp",
+          },
+          {
+            tokenId: 150,
+            filename: "filament_1777568407403_0010_3b1hnpjf_Fresco_medium.webp",
+            sidecar: "filament_1777568407403_0010_3b1hnpjf_Fresco_medium.json",
+            seed: "3b1hnpjf",
+            palette: "Fresco",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777568407403_0010_3b1hnpjf_Fresco_medium_thumb.webp",
+          },
+          {
+            tokenId: 151,
+            filename: "filament_1777569195622_0011_4ngkkd0n_Fresco_mixed.webp",
+            sidecar: "filament_1777569195622_0011_4ngkkd0n_Fresco_mixed.json",
+            seed: "4ngkkd0n",
+            palette: "Fresco",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777569195622_0011_4ngkkd0n_Fresco_mixed_thumb.webp",
+          },
+          {
+            tokenId: 152,
+            filename: "filament_1777569574627_0061_5e85p7cv_Fresco_jumbo.webp",
+            sidecar: "filament_1777569574627_0061_5e85p7cv_Fresco_jumbo.json",
+            seed: "5e85p7cv",
+            palette: "Fresco",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569574627_0061_5e85p7cv_Fresco_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 153,
+            filename: "filament_1777569596147_0096_i78gmyxt_Fresco_jumbo.webp",
+            sidecar: "filament_1777569596147_0096_i78gmyxt_Fresco_jumbo.json",
+            seed: "i78gmyxt",
+            palette: "Fresco",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569596147_0096_i78gmyxt_Fresco_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 154,
+            filename: "filament_1777569609615_0115_w55eth6h_Fresco_jumbo.webp",
+            sidecar: "filament_1777569609615_0115_w55eth6h_Fresco_jumbo.json",
+            seed: "w55eth6h",
+            palette: "Fresco",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569609615_0115_w55eth6h_Fresco_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 155,
+            filename: "filament_1777569634325_0154_bfclm3c9_Fresco_jumbo.webp",
+            sidecar: "filament_1777569634325_0154_bfclm3c9_Fresco_jumbo.json",
+            seed: "bfclm3c9",
+            palette: "Fresco",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569634325_0154_bfclm3c9_Fresco_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 156,
+            filename: "filament_1777570155130_0096_k1ozy91u_Fresco_micro.webp",
+            sidecar: "filament_1777570155130_0096_k1ozy91u_Fresco_micro.json",
+            seed: "k1ozy91u",
+            palette: "Fresco",
+            scale: "micro",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570155130_0096_k1ozy91u_Fresco_micro_thumb.webp",
+          },
+          {
+            tokenId: 157,
+            filename: "filament_1777570344408_0092_ato15pau_Fresco_mixed.webp",
+            sidecar: "filament_1777570344408_0092_ato15pau_Fresco_mixed.json",
+            seed: "ato15pau",
+            palette: "Fresco",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570344408_0092_ato15pau_Fresco_mixed_thumb.webp",
+          },
+          {
+            tokenId: 158,
+            filename: "filament_1777666647336_0043_kovamy4j_Fresco_mixed.webp",
+            sidecar: "filament_1777666647336_0043_kovamy4j_Fresco_mixed.json",
+            seed: "kovamy4j",
+            palette: "Fresco",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666647336_0043_kovamy4j_Fresco_mixed_thumb.webp",
+          },
+          {
+            tokenId: 159,
+            filename: "filament_1777666650610_0047_m49ue1vb_Fresco_large.webp",
+            sidecar: "filament_1777666650610_0047_m49ue1vb_Fresco_large.json",
+            seed: "m49ue1vb",
+            palette: "Fresco",
+            scale: "large",
+            style: "thin",
+            thumbnail:
+              "filament_1777666650610_0047_m49ue1vb_Fresco_large_thumb.webp",
+          },
+          {
+            tokenId: 160,
+            filename: "filament_1777667055320_0010_9rekyqbc_Fresco_jumbo.webp",
+            sidecar: "filament_1777667055320_0010_9rekyqbc_Fresco_jumbo.json",
+            seed: "9rekyqbc",
+            palette: "Fresco",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667055320_0010_9rekyqbc_Fresco_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 161,
+            filename: "filament_1777667089186_0045_5lf3fe9h_Fresco_mixed.webp",
+            sidecar: "filament_1777667089186_0045_5lf3fe9h_Fresco_mixed.json",
+            seed: "5lf3fe9h",
+            palette: "Fresco",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667089186_0045_5lf3fe9h_Fresco_mixed_thumb.webp",
+          },
+          {
+            tokenId: 162,
+            filename: "filament_1777667159484_0050_f6kexpja_Fresco_medium.webp",
+            sidecar: "filament_1777667159484_0050_f6kexpja_Fresco_medium.json",
+            seed: "f6kexpja",
+            palette: "Fresco",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667159484_0050_f6kexpja_Fresco_medium_thumb.webp",
+          },
+          {
+            tokenId: 163,
+            filename: "filament_1777667166099_0057_5r54q4nx_Fresco_jumbo.webp",
+            sidecar: "filament_1777667166099_0057_5r54q4nx_Fresco_jumbo.json",
+            seed: "5r54q4nx",
+            palette: "Fresco",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667166099_0057_5r54q4nx_Fresco_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 164,
+            filename: "filament_1777569011237_0007_mo0tbcxo_Terra_large.webp",
+            sidecar: "filament_1777569011237_0007_mo0tbcxo_Terra_large.json",
+            seed: "mo0tbcxo",
+            palette: "Terra",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777569011237_0007_mo0tbcxo_Terra_large_thumb.webp",
+          },
+          {
+            tokenId: 165,
+            filename: "filament_1777569559310_0036_r79sl4ti_Terra_jumbo.webp",
+            sidecar: "filament_1777569559310_0036_r79sl4ti_Terra_jumbo.json",
+            seed: "r79sl4ti",
+            palette: "Terra",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569559310_0036_r79sl4ti_Terra_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 166,
+            filename: "filament_1777569567186_0049_roe3pjtu_Terra_jumbo.webp",
+            sidecar: "filament_1777569567186_0049_roe3pjtu_Terra_jumbo.json",
+            seed: "roe3pjtu",
+            palette: "Terra",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569567186_0049_roe3pjtu_Terra_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 167,
+            filename: "filament_1777569609136_0114_c0fh85ah_Terra_jumbo.webp",
+            sidecar: "filament_1777569609136_0114_c0fh85ah_Terra_jumbo.json",
+            seed: "c0fh85ah",
+            palette: "Terra",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569609136_0114_c0fh85ah_Terra_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 168,
+            filename: "filament_1777569639955_0161_kn6cs0bp_Terra_jumbo.webp",
+            sidecar: "filament_1777569639955_0161_kn6cs0bp_Terra_jumbo.json",
+            seed: "kn6cs0bp",
+            palette: "Terra",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569639955_0161_kn6cs0bp_Terra_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 169,
+            filename: "filament_1777570129738_0083_basqiar6_Terra_mixed.webp",
+            sidecar: "filament_1777570129738_0083_basqiar6_Terra_mixed.json",
+            seed: "basqiar6",
+            palette: "Terra",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570129738_0083_basqiar6_Terra_mixed_thumb.webp",
+          },
+          {
+            tokenId: 170,
+            filename: "filament_1777570145232_0092_m4mxm05d_Terra_mixed.webp",
+            sidecar: "filament_1777570145232_0092_m4mxm05d_Terra_mixed.json",
+            seed: "m4mxm05d",
+            palette: "Terra",
+            scale: "mixed",
+            style: "thin",
+            thumbnail:
+              "filament_1777570145232_0092_m4mxm05d_Terra_mixed_thumb.webp",
+          },
+          {
+            tokenId: 171,
+            filename: "filament_1777570241938_0037_3jpk348r_Terra_micro.webp",
+            sidecar: "filament_1777570241938_0037_3jpk348r_Terra_micro.json",
+            seed: "3jpk348r",
+            palette: "Terra",
+            scale: "micro",
+            style: "beads",
+            thumbnail:
+              "filament_1777570241938_0037_3jpk348r_Terra_micro_thumb.webp",
+          },
+          {
+            tokenId: 172,
+            filename: "filament_1777666633888_0030_g2d292p2_Terra_medium.webp",
+            sidecar: "filament_1777666633888_0030_g2d292p2_Terra_medium.json",
+            seed: "g2d292p2",
+            palette: "Terra",
+            scale: "medium",
+            style: "beads",
+            thumbnail:
+              "filament_1777666633888_0030_g2d292p2_Terra_medium_thumb.webp",
+          },
+          {
+            tokenId: 173,
+            filename: "filament_1777666635823_0031_ev82xaps_Terra_medium.webp",
+            sidecar: "filament_1777666635823_0031_ev82xaps_Terra_medium.json",
+            seed: "ev82xaps",
+            palette: "Terra",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666635823_0031_ev82xaps_Terra_medium_thumb.webp",
+          },
+          {
+            tokenId: 174,
+            filename: "filament_1777666836425_0046_hwbgecer_Terra_mixed.webp",
+            sidecar: "filament_1777666836425_0046_hwbgecer_Terra_mixed.json",
+            seed: "hwbgecer",
+            palette: "Terra",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666836425_0046_hwbgecer_Terra_mixed_thumb.webp",
+          },
+          {
+            tokenId: 175,
+            filename: "filament_1777667043256_0013_4prg3vi2_Terra_medium.webp",
+            sidecar: "filament_1777667043256_0013_4prg3vi2_Terra_medium.json",
+            seed: "4prg3vi2",
+            palette: "Terra",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667043256_0013_4prg3vi2_Terra_medium_thumb.webp",
+          },
+          {
+            tokenId: 176,
+            filename: "filament_1777667059584_0015_ixrruakq_Terra_large.webp",
+            sidecar: "filament_1777667059584_0015_ixrruakq_Terra_large.json",
+            seed: "ixrruakq",
+            palette: "Terra",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667059584_0015_ixrruakq_Terra_large_thumb.webp",
+          },
+          {
+            tokenId: 177,
+            filename: "filament_1777667132504_0022_mens3hma_Terra_large.webp",
+            sidecar: "filament_1777667132504_0022_mens3hma_Terra_large.json",
+            seed: "mens3hma",
+            palette: "Terra",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667132504_0022_mens3hma_Terra_large_thumb.webp",
+          },
+          {
+            tokenId: 178,
+            filename: "filament_1777667220526_0122_eswsczqz_Terra_mixed.webp",
+            sidecar: "filament_1777667220526_0122_eswsczqz_Terra_mixed.json",
+            seed: "eswsczqz",
+            palette: "Terra",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667220526_0122_eswsczqz_Terra_mixed_thumb.webp",
+          },
+          {
+            tokenId: 179,
+            filename: "filament_1777569545978_0016_9s6znv4j_Ombra_jumbo.webp",
+            sidecar: "filament_1777569545978_0016_9s6znv4j_Ombra_jumbo.json",
+            seed: "9s6znv4j",
+            palette: "Ombra",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569545978_0016_9s6znv4j_Ombra_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 180,
+            filename: "filament_1777570046853_0012_wkkkndl6_Ombra_large.webp",
+            sidecar: "filament_1777570046853_0012_wkkkndl6_Ombra_large.json",
+            seed: "wkkkndl6",
+            palette: "Ombra",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777570046853_0012_wkkkndl6_Ombra_large_thumb.webp",
+          },
+          {
+            tokenId: 181,
+            filename: "filament_1777570064091_0027_5jbh52y5_Ombra_mixed.webp",
+            sidecar: "filament_1777570064091_0027_5jbh52y5_Ombra_mixed.json",
+            seed: "5jbh52y5",
+            palette: "Ombra",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777570064091_0027_5jbh52y5_Ombra_mixed_thumb.webp",
+          },
+          {
+            tokenId: 182,
+            filename: "filament_1777570086715_0051_k6ddl1c6_Ombra_jumbo.webp",
+            sidecar: "filament_1777570086715_0051_k6ddl1c6_Ombra_jumbo.json",
+            seed: "k6ddl1c6",
+            palette: "Ombra",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570086715_0051_k6ddl1c6_Ombra_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 183,
+            filename: "filament_1777570112528_0070_yu75c8hc_Ombra_mixed.webp",
+            sidecar: "filament_1777570112528_0070_yu75c8hc_Ombra_mixed.json",
+            seed: "yu75c8hc",
+            palette: "Ombra",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777570112528_0070_yu75c8hc_Ombra_mixed_thumb.webp",
+          },
+          {
+            tokenId: 184,
+            filename: "filament_1777570299002_0069_eyhdq3ar_Ombra_micro.webp",
+            sidecar: "filament_1777570299002_0069_eyhdq3ar_Ombra_micro.json",
+            seed: "eyhdq3ar",
+            palette: "Ombra",
+            scale: "micro",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570299002_0069_eyhdq3ar_Ombra_micro_thumb.webp",
+          },
+          {
+            tokenId: 185,
+            filename: "filament_1777570316140_0080_nztsk6ph_Ombra_micro.webp",
+            sidecar: "filament_1777570316140_0080_nztsk6ph_Ombra_micro.json",
+            seed: "nztsk6ph",
+            palette: "Ombra",
+            scale: "micro",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570316140_0080_nztsk6ph_Ombra_micro_thumb.webp",
+          },
+          {
+            tokenId: 186,
+            filename: "filament_1777570350409_0098_nporeba9_Ombra_large.webp",
+            sidecar: "filament_1777570350409_0098_nporeba9_Ombra_large.json",
+            seed: "nporeba9",
+            palette: "Ombra",
+            scale: "large",
+            style: "thin",
+            thumbnail:
+              "filament_1777570350409_0098_nporeba9_Ombra_large_thumb.webp",
+          },
+          {
+            tokenId: 187,
+            filename: "filament_1777666799867_0006_niim5ytp_Ombra_mixed.webp",
+            sidecar: "filament_1777666799867_0006_niim5ytp_Ombra_mixed.json",
+            seed: "niim5ytp",
+            palette: "Ombra",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666799867_0006_niim5ytp_Ombra_mixed_thumb.webp",
+          },
+          {
+            tokenId: 188,
+            filename: "filament_1777666808764_0016_xoykn3h7_Ombra_large.webp",
+            sidecar: "filament_1777666808764_0016_xoykn3h7_Ombra_large.json",
+            seed: "xoykn3h7",
+            palette: "Ombra",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666808764_0016_xoykn3h7_Ombra_large_thumb.webp",
+          },
+          {
+            tokenId: 189,
+            filename: "filament_1777666811305_0019_72h32kzu_Ombra_large.webp",
+            sidecar: "filament_1777666811305_0019_72h32kzu_Ombra_large.json",
+            seed: "72h32kzu",
+            palette: "Ombra",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777666811305_0019_72h32kzu_Ombra_large_thumb.webp",
+          },
+          {
+            tokenId: 190,
+            filename: "filament_1777667039343_0010_dxzy5dsw_Ombra_mixed.webp",
+            sidecar: "filament_1777667039343_0010_dxzy5dsw_Ombra_mixed.json",
+            seed: "dxzy5dsw",
+            palette: "Ombra",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667039343_0010_dxzy5dsw_Ombra_mixed_thumb.webp",
+          },
+          {
+            tokenId: 191,
+            filename: "filament_1777667138368_0029_q13cs4h0_Ombra_large.webp",
+            sidecar: "filament_1777667138368_0029_q13cs4h0_Ombra_large.json",
+            seed: "q13cs4h0",
+            palette: "Ombra",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667138368_0029_q13cs4h0_Ombra_large_thumb.webp",
+          },
+          {
+            tokenId: 192,
+            filename: "filament_1777667182999_0078_cyaul5fb_Ombra_large.webp",
+            sidecar: "filament_1777667182999_0078_cyaul5fb_Ombra_large.json",
+            seed: "cyaul5fb",
+            palette: "Ombra",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667182999_0078_cyaul5fb_Ombra_large_thumb.webp",
+          },
+          {
+            tokenId: 193,
+            filename: "filament_1777667200256_0096_mc6rubzs_Ombra_mixed.webp",
+            sidecar: "filament_1777667200256_0096_mc6rubzs_Ombra_mixed.json",
+            seed: "mc6rubzs",
+            palette: "Ombra",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667200256_0096_mc6rubzs_Ombra_mixed_thumb.webp",
+          },
+          {
+            tokenId: 194,
+            filename:
+              "filament_1777569325789_0010_6tsra6jg_Glaciale_jumbo.webp",
+            sidecar: "filament_1777569325789_0010_6tsra6jg_Glaciale_jumbo.json",
+            seed: "6tsra6jg",
+            palette: "Glaciale",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569325789_0010_6tsra6jg_Glaciale_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 195,
+            filename:
+              "filament_1777569330671_0017_68al9v5u_Glaciale_jumbo.webp",
+            sidecar: "filament_1777569330671_0017_68al9v5u_Glaciale_jumbo.json",
+            seed: "68al9v5u",
+            palette: "Glaciale",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569330671_0017_68al9v5u_Glaciale_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 196,
+            filename:
+              "filament_1777569566522_0048_8bakm26h_Glaciale_jumbo.webp",
+            sidecar: "filament_1777569566522_0048_8bakm26h_Glaciale_jumbo.json",
+            seed: "8bakm26h",
+            palette: "Glaciale",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569566522_0048_8bakm26h_Glaciale_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 197,
+            filename:
+              "filament_1777569599207_0101_1p6wj2j3_Glaciale_jumbo.webp",
+            sidecar: "filament_1777569599207_0101_1p6wj2j3_Glaciale_jumbo.json",
+            seed: "1p6wj2j3",
+            palette: "Glaciale",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569599207_0101_1p6wj2j3_Glaciale_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 198,
+            filename:
+              "filament_1777569619356_0131_boqn5k9n_Glaciale_jumbo.webp",
+            sidecar: "filament_1777569619356_0131_boqn5k9n_Glaciale_jumbo.json",
+            seed: "boqn5k9n",
+            palette: "Glaciale",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569619356_0131_boqn5k9n_Glaciale_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 199,
+            filename:
+              "filament_1777570067056_0031_ebq1s133_Glaciale_small.webp",
+            sidecar: "filament_1777570067056_0031_ebq1s133_Glaciale_small.json",
+            seed: "ebq1s133",
+            palette: "Glaciale",
+            scale: "small",
+            style: "beads",
+            thumbnail:
+              "filament_1777570067056_0031_ebq1s133_Glaciale_small_thumb.webp",
+          },
+          {
+            tokenId: 200,
+            filename:
+              "filament_1777666608010_0002_ti8yry62_Glaciale_mixed.webp",
+            sidecar: "filament_1777666608010_0002_ti8yry62_Glaciale_mixed.json",
+            seed: "ti8yry62",
+            palette: "Glaciale",
+            scale: "mixed",
+            style: "thin",
+            thumbnail:
+              "filament_1777666608010_0002_ti8yry62_Glaciale_mixed_thumb.webp",
+          },
+          {
+            tokenId: 201,
+            filename:
+              "filament_1777666632297_0028_or707wm8_Glaciale_medium.webp",
+            sidecar:
+              "filament_1777666632297_0028_or707wm8_Glaciale_medium.json",
+            seed: "or707wm8",
+            palette: "Glaciale",
+            scale: "medium",
+            style: "beads",
+            thumbnail:
+              "filament_1777666632297_0028_or707wm8_Glaciale_medium_thumb.webp",
+          },
+          {
+            tokenId: 202,
+            filename:
+              "filament_1777666801636_0008_7fa7hg69_Glaciale_large.webp",
+            sidecar: "filament_1777666801636_0008_7fa7hg69_Glaciale_large.json",
+            seed: "7fa7hg69",
+            palette: "Glaciale",
+            scale: "large",
+            style: "thin",
+            thumbnail:
+              "filament_1777666801636_0008_7fa7hg69_Glaciale_large_thumb.webp",
+          },
+          {
+            tokenId: 203,
+            filename:
+              "filament_1777667016716_0003_lq1ttmc7_Glaciale_mixed.webp",
+            sidecar: "filament_1777667016716_0003_lq1ttmc7_Glaciale_mixed.json",
+            seed: "lq1ttmc7",
+            palette: "Glaciale",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777667016716_0003_lq1ttmc7_Glaciale_mixed_thumb.webp",
+          },
+          {
+            tokenId: 204,
+            filename:
+              "filament_1777667086500_0043_taiy8st2_Glaciale_medium.webp",
+            sidecar:
+              "filament_1777667086500_0043_taiy8st2_Glaciale_medium.json",
+            seed: "taiy8st2",
+            palette: "Glaciale",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667086500_0043_taiy8st2_Glaciale_medium_thumb.webp",
+          },
+          {
+            tokenId: 205,
+            filename:
+              "filament_1777667094308_0050_w2vo7qsz_Glaciale_large.webp",
+            sidecar: "filament_1777667094308_0050_w2vo7qsz_Glaciale_large.json",
+            seed: "w2vo7qsz",
+            palette: "Glaciale",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667094308_0050_w2vo7qsz_Glaciale_large_thumb.webp",
+          },
+          {
+            tokenId: 206,
+            filename:
+              "filament_1777667195123_0090_7v19anm7_Glaciale_medium.webp",
+            sidecar:
+              "filament_1777667195123_0090_7v19anm7_Glaciale_medium.json",
+            seed: "7v19anm7",
+            palette: "Glaciale",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667195123_0090_7v19anm7_Glaciale_medium_thumb.webp",
+          },
+          {
+            tokenId: 207,
+            filename:
+              "filament_1777667196211_0092_58tbc4sn_Glaciale_jumbo.webp",
+            sidecar: "filament_1777667196211_0092_58tbc4sn_Glaciale_jumbo.json",
+            seed: "58tbc4sn",
+            palette: "Glaciale",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667196211_0092_58tbc4sn_Glaciale_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 208,
+            filename:
+              "filament_1777667212342_0111_nexmay04_Glaciale_large.webp",
+            sidecar: "filament_1777667212342_0111_nexmay04_Glaciale_large.json",
+            seed: "nexmay04",
+            palette: "Glaciale",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667212342_0111_nexmay04_Glaciale_large_thumb.webp",
+          },
+          {
+            tokenId: 209,
+            filename:
+              "filament_1777569259026_0004_d6jznfyi_Tramonto_mixed.webp",
+            sidecar: "filament_1777569259026_0004_d6jznfyi_Tramonto_mixed.json",
+            seed: "d6jznfyi",
+            palette: "Tramonto",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777569259026_0004_d6jznfyi_Tramonto_mixed_thumb.webp",
+          },
+          {
+            tokenId: 210,
+            filename:
+              "filament_1777569277279_0020_qfogvqyn_Tramonto_mixed.webp",
+            sidecar: "filament_1777569277279_0020_qfogvqyn_Tramonto_mixed.json",
+            seed: "qfogvqyn",
+            palette: "Tramonto",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777569277279_0020_qfogvqyn_Tramonto_mixed_thumb.webp",
+          },
+          {
+            tokenId: 211,
+            filename:
+              "filament_1777569573546_0059_dof40p8g_Tramonto_jumbo.webp",
+            sidecar: "filament_1777569573546_0059_dof40p8g_Tramonto_jumbo.json",
+            seed: "dof40p8g",
+            palette: "Tramonto",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569573546_0059_dof40p8g_Tramonto_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 212,
+            filename:
+              "filament_1777569587179_0081_0xe9vank_Tramonto_jumbo.webp",
+            sidecar: "filament_1777569587179_0081_0xe9vank_Tramonto_jumbo.json",
+            seed: "0xe9vank",
+            palette: "Tramonto",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569587179_0081_0xe9vank_Tramonto_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 213,
+            filename:
+              "filament_1777569617196_0127_pgtftnor_Tramonto_jumbo.webp",
+            sidecar: "filament_1777569617196_0127_pgtftnor_Tramonto_jumbo.json",
+            seed: "pgtftnor",
+            palette: "Tramonto",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569617196_0127_pgtftnor_Tramonto_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 214,
+            filename:
+              "filament_1777569630766_0148_d3po9zma_Tramonto_jumbo.webp",
+            sidecar: "filament_1777569630766_0148_d3po9zma_Tramonto_jumbo.json",
+            seed: "d3po9zma",
+            palette: "Tramonto",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569630766_0148_d3po9zma_Tramonto_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 215,
+            filename:
+              "filament_1777570069534_0034_hsixujzz_Tramonto_mixed.webp",
+            sidecar: "filament_1777570069534_0034_hsixujzz_Tramonto_mixed.json",
+            seed: "hsixujzz",
+            palette: "Tramonto",
+            scale: "mixed",
+            style: "thin",
+            thumbnail:
+              "filament_1777570069534_0034_hsixujzz_Tramonto_mixed_thumb.webp",
+          },
+          {
+            tokenId: 216,
+            filename:
+              "filament_1777570077311_0043_28j99v9i_Tramonto_micro.webp",
+            sidecar: "filament_1777570077311_0043_28j99v9i_Tramonto_micro.json",
+            seed: "28j99v9i",
+            palette: "Tramonto",
+            scale: "micro",
+            style: "beads",
+            thumbnail:
+              "filament_1777570077311_0043_28j99v9i_Tramonto_micro_thumb.webp",
+          },
+          {
+            tokenId: 217,
+            filename:
+              "filament_1777570081920_0047_5rpuzm99_Tramonto_jumbo.webp",
+            sidecar: "filament_1777570081920_0047_5rpuzm99_Tramonto_jumbo.json",
+            seed: "5rpuzm99",
+            palette: "Tramonto",
+            scale: "jumbo",
+            style: "thin",
+            thumbnail:
+              "filament_1777570081920_0047_5rpuzm99_Tramonto_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 218,
+            filename:
+              "filament_1777570198049_0013_ktr3f3o1_Tramonto_mixed.webp",
+            sidecar: "filament_1777570198049_0013_ktr3f3o1_Tramonto_mixed.json",
+            seed: "ktr3f3o1",
+            palette: "Tramonto",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570198049_0013_ktr3f3o1_Tramonto_mixed_thumb.webp",
+          },
+          {
+            tokenId: 219,
+            filename:
+              "filament_1777570200524_0016_45hyhcdi_Tramonto_medium.webp",
+            sidecar:
+              "filament_1777570200524_0016_45hyhcdi_Tramonto_medium.json",
+            seed: "45hyhcdi",
+            palette: "Tramonto",
+            scale: "medium",
+            style: "thin",
+            thumbnail:
+              "filament_1777570200524_0016_45hyhcdi_Tramonto_medium_thumb.webp",
+          },
+          {
+            tokenId: 220,
+            filename:
+              "filament_1777570282931_0061_7gozhfea_Tramonto_small.webp",
+            sidecar: "filament_1777570282931_0061_7gozhfea_Tramonto_small.json",
+            seed: "7gozhfea",
+            palette: "Tramonto",
+            scale: "small",
+            style: "beads",
+            thumbnail:
+              "filament_1777570282931_0061_7gozhfea_Tramonto_small_thumb.webp",
+          },
+          {
+            tokenId: 221,
+            filename:
+              "filament_1777666812668_0020_6a65ak1h_Tramonto_mixed.webp",
+            sidecar: "filament_1777666812668_0020_6a65ak1h_Tramonto_mixed.json",
+            seed: "6a65ak1h",
+            palette: "Tramonto",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666812668_0020_6a65ak1h_Tramonto_mixed_thumb.webp",
+          },
+          {
+            tokenId: 222,
+            filename:
+              "filament_1777667051035_0006_50htlril_Tramonto_medium.webp",
+            sidecar:
+              "filament_1777667051035_0006_50htlril_Tramonto_medium.json",
+            seed: "50htlril",
+            palette: "Tramonto",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667051035_0006_50htlril_Tramonto_medium_thumb.webp",
+          },
+          {
+            tokenId: 223,
+            filename:
+              "filament_1777667080844_0038_u6xzh4kb_Tramonto_medium.webp",
+            sidecar:
+              "filament_1777667080844_0038_u6xzh4kb_Tramonto_medium.json",
+            seed: "u6xzh4kb",
+            palette: "Tramonto",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667080844_0038_u6xzh4kb_Tramonto_medium_thumb.webp",
+          },
+          {
+            tokenId: 224,
+            filename:
+              "filament_1777667120589_0008_7z5b475w_Tramonto_medium.webp",
+            sidecar:
+              "filament_1777667120589_0008_7z5b475w_Tramonto_medium.json",
+            seed: "7z5b475w",
+            palette: "Tramonto",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667120589_0008_7z5b475w_Tramonto_medium_thumb.webp",
+          },
+          {
+            tokenId: 225,
+            filename:
+              "filament_1777667164036_0054_q7azywd2_Tramonto_mixed.webp",
+            sidecar: "filament_1777667164036_0054_q7azywd2_Tramonto_mixed.json",
+            seed: "q7azywd2",
+            palette: "Tramonto",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667164036_0054_q7azywd2_Tramonto_mixed_thumb.webp",
+          },
+          {
+            tokenId: 226,
+            filename:
+              "filament_1777667197536_0093_zbvn58ss_Tramonto_medium.webp",
+            sidecar:
+              "filament_1777667197536_0093_zbvn58ss_Tramonto_medium.json",
+            seed: "zbvn58ss",
+            palette: "Tramonto",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667197536_0093_zbvn58ss_Tramonto_medium_thumb.webp",
+          },
+          {
+            tokenId: 227,
+            filename:
+              "filament_1777667224545_0126_hzst0goz_Tramonto_mixed.webp",
+            sidecar: "filament_1777667224545_0126_hzst0goz_Tramonto_mixed.json",
+            seed: "hzst0goz",
+            palette: "Tramonto",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667224545_0126_hzst0goz_Tramonto_mixed_thumb.webp",
+          },
+          {
+            tokenId: 228,
+            filename:
+              "filament_1777667231876_0134_vfwfeacp_Tramonto_large.webp",
+            sidecar: "filament_1777667231876_0134_vfwfeacp_Tramonto_large.json",
+            seed: "vfwfeacp",
+            palette: "Tramonto",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667231876_0134_vfwfeacp_Tramonto_large_thumb.webp",
+          },
+          {
+            tokenId: 229,
+            filename: "filament_1777569189688_0007_y4qx87x5_Murano_large.webp",
+            sidecar: "filament_1777569189688_0007_y4qx87x5_Murano_large.json",
+            seed: "y4qx87x5",
+            palette: "Murano",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777569189688_0007_y4qx87x5_Murano_large_thumb.webp",
+          },
+          {
+            tokenId: 230,
+            filename: "filament_1777569273577_0017_3ecgj993_Murano_mixed.webp",
+            sidecar: "filament_1777569273577_0017_3ecgj993_Murano_mixed.json",
+            seed: "3ecgj993",
+            palette: "Murano",
+            scale: "mixed",
+            style: "beads",
+            thumbnail:
+              "filament_1777569273577_0017_3ecgj993_Murano_mixed_thumb.webp",
+          },
+          {
+            tokenId: 231,
+            filename: "filament_1777569533344_0003_si9a0e98_Murano_jumbo.webp",
+            sidecar: "filament_1777569533344_0003_si9a0e98_Murano_jumbo.json",
+            seed: "si9a0e98",
+            palette: "Murano",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569533344_0003_si9a0e98_Murano_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 232,
+            filename: "filament_1777569568541_0051_d1615qx6_Murano_jumbo.webp",
+            sidecar: "filament_1777569568541_0051_d1615qx6_Murano_jumbo.json",
+            seed: "d1615qx6",
+            palette: "Murano",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569568541_0051_d1615qx6_Murano_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 233,
+            filename: "filament_1777569595517_0095_jhuxunv2_Murano_jumbo.webp",
+            sidecar: "filament_1777569595517_0095_jhuxunv2_Murano_jumbo.json",
+            seed: "jhuxunv2",
+            palette: "Murano",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569595517_0095_jhuxunv2_Murano_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 234,
+            filename: "filament_1777569596809_0097_0oy09927_Murano_jumbo.webp",
+            sidecar: "filament_1777569596809_0097_0oy09927_Murano_jumbo.json",
+            seed: "0oy09927",
+            palette: "Murano",
+            scale: "jumbo",
+            style: "beads",
+            thumbnail:
+              "filament_1777569596809_0097_0oy09927_Murano_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 235,
+            filename: "filament_1777570074661_0041_x79wtl5y_Murano_mixed.webp",
+            sidecar: "filament_1777570074661_0041_x79wtl5y_Murano_mixed.json",
+            seed: "x79wtl5y",
+            palette: "Murano",
+            scale: "mixed",
+            style: "thin",
+            thumbnail:
+              "filament_1777570074661_0041_x79wtl5y_Murano_mixed_thumb.webp",
+          },
+          {
+            tokenId: 236,
+            filename: "filament_1777570107331_0066_wpdvdf19_Murano_medium.webp",
+            sidecar: "filament_1777570107331_0066_wpdvdf19_Murano_medium.json",
+            seed: "wpdvdf19",
+            palette: "Murano",
+            scale: "medium",
+            style: "beads",
+            thumbnail:
+              "filament_1777570107331_0066_wpdvdf19_Murano_medium_thumb.webp",
+          },
+          {
+            tokenId: 237,
+            filename: "filament_1777570213277_0027_i1jy46af_Murano_large.webp",
+            sidecar: "filament_1777570213277_0027_i1jy46af_Murano_large.json",
+            seed: "i1jy46af",
+            palette: "Murano",
+            scale: "large",
+            style: "thin",
+            thumbnail:
+              "filament_1777570213277_0027_i1jy46af_Murano_large_thumb.webp",
+          },
+          {
+            tokenId: 238,
+            filename: "filament_1777570216675_0029_de5j18zk_Murano_mixed.webp",
+            sidecar: "filament_1777570216675_0029_de5j18zk_Murano_mixed.json",
+            seed: "de5j18zk",
+            palette: "Murano",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570216675_0029_de5j18zk_Murano_mixed_thumb.webp",
+          },
+          {
+            tokenId: 239,
+            filename: "filament_1777570252350_0043_krmv8dau_Murano_mixed.webp",
+            sidecar: "filament_1777570252350_0043_krmv8dau_Murano_mixed.json",
+            seed: "krmv8dau",
+            palette: "Murano",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777570252350_0043_krmv8dau_Murano_mixed_thumb.webp",
+          },
+          {
+            tokenId: 240,
+            filename: "filament_1777666616057_0010_1fd6mbwi_Murano_medium.webp",
+            sidecar: "filament_1777666616057_0010_1fd6mbwi_Murano_medium.json",
+            seed: "1fd6mbwi",
+            palette: "Murano",
+            scale: "medium",
+            style: "beads",
+            thumbnail:
+              "filament_1777666616057_0010_1fd6mbwi_Murano_medium_thumb.webp",
+          },
+          {
+            tokenId: 241,
+            filename: "filament_1777666637680_0033_yr1uyg3o_Murano_mixed.webp",
+            sidecar: "filament_1777666637680_0033_yr1uyg3o_Murano_mixed.json",
+            seed: "yr1uyg3o",
+            palette: "Murano",
+            scale: "mixed",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666637680_0033_yr1uyg3o_Murano_mixed_thumb.webp",
+          },
+          {
+            tokenId: 242,
+            filename: "filament_1777666807898_0015_k4w6750y_Murano_large.webp",
+            sidecar: "filament_1777666807898_0015_k4w6750y_Murano_large.json",
+            seed: "k4w6750y",
+            palette: "Murano",
+            scale: "large",
+            style: "beads",
+            thumbnail:
+              "filament_1777666807898_0015_k4w6750y_Murano_large_thumb.webp",
+          },
+          {
+            tokenId: 243,
+            filename: "filament_1777666835346_0045_u6cjn1q3_Murano_medium.webp",
+            sidecar: "filament_1777666835346_0045_u6cjn1q3_Murano_medium.json",
+            seed: "u6cjn1q3",
+            palette: "Murano",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777666835346_0045_u6cjn1q3_Murano_medium_thumb.webp",
+          },
+          {
+            tokenId: 244,
+            filename: "filament_1777667015123_0002_6gggb8im_Murano_jumbo.webp",
+            sidecar: "filament_1777667015123_0002_6gggb8im_Murano_jumbo.json",
+            seed: "6gggb8im",
+            palette: "Murano",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667015123_0002_6gggb8im_Murano_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 245,
+            filename: "filament_1777667040364_0011_idc29quz_Murano_jumbo.webp",
+            sidecar: "filament_1777667040364_0011_idc29quz_Murano_jumbo.json",
+            seed: "idc29quz",
+            palette: "Murano",
+            scale: "jumbo",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667040364_0011_idc29quz_Murano_jumbo_thumb.webp",
+          },
+          {
+            tokenId: 246,
+            filename: "filament_1777667062695_0017_zovn39w3_Murano_medium.webp",
+            sidecar: "filament_1777667062695_0017_zovn39w3_Murano_medium.json",
+            seed: "zovn39w3",
+            palette: "Murano",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667062695_0017_zovn39w3_Murano_medium_thumb.webp",
+          },
+          {
+            tokenId: 247,
+            filename: "filament_1777667146281_0037_ptamvlkt_Murano_medium.webp",
+            sidecar: "filament_1777667146281_0037_ptamvlkt_Murano_medium.json",
+            seed: "ptamvlkt",
+            palette: "Murano",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667146281_0037_ptamvlkt_Murano_medium_thumb.webp",
+          },
+          {
+            tokenId: 248,
+            filename: "filament_1777667180789_0075_pbka3fsl_Murano_large.webp",
+            sidecar: "filament_1777667180789_0075_pbka3fsl_Murano_large.json",
+            seed: "pbka3fsl",
+            palette: "Murano",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667180789_0075_pbka3fsl_Murano_large_thumb.webp",
+          },
+          {
+            tokenId: 249,
+            filename: "filament_1777667181684_0076_677xi2nh_Murano_medium.webp",
+            sidecar: "filament_1777667181684_0076_677xi2nh_Murano_medium.json",
+            seed: "677xi2nh",
+            palette: "Murano",
+            scale: "medium",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667181684_0076_677xi2nh_Murano_medium_thumb.webp",
+          },
+          {
+            tokenId: 250,
+            filename: "filament_1777667214249_0114_m1p6k37w_Murano_large.webp",
+            sidecar: "filament_1777667214249_0114_m1p6k37w_Murano_large.json",
+            seed: "m1p6k37w",
+            palette: "Murano",
+            scale: "large",
+            style: "mixed-style",
+            thumbnail:
+              "filament_1777667214249_0114_m1p6k37w_Murano_large_thumb.webp",
+          },
+        ],
+        web_optimized: {
+          size_px: 1500,
+          thumb_size_px: 600,
+          format: "webp",
+          quality: 85,
+          thumb_quality: 78,
+          source: "Filament_Official",
+        },
+      };
+
+      const grid = document.getElementById("grid");
+      const modal = document.getElementById("modal");
+      const modalImg = document.getElementById("modal-img");
+      const modalSide = document.getElementById("modal-side");
+      const modalPosition = document.getElementById("modal-position");
+      const filters = document.getElementById("filters");
+
+      let currentIdx = 0;
+      let activeFilter = "all";
+
+      // Build filter pills (palette set)
+      const palettes = [...new Set(EDITION.selected.map((s) => s.palette))];
+      const allBtn = document.createElement("button");
+      allBtn.className = "filter-btn active";
+      allBtn.textContent = "All (" + EDITION.selected.length + ")";
+      allBtn.dataset.filter = "all";
+      filters.appendChild(allBtn);
+      for (const p of palettes) {
+        const count = EDITION.selected.filter((s) => s.palette === p).length;
+        const b = document.createElement("button");
+        b.className = "filter-btn";
+        b.textContent = p + " (" + count + ")";
+        b.dataset.filter = p;
+        filters.appendChild(b);
+      }
+      filters.addEventListener("click", (e) => {
+        const f = e.target.dataset.filter;
+        if (!f) return;
+        activeFilter = f;
+        document.querySelectorAll(".filter-btn").forEach((b) => {
+          b.classList.toggle("active", b.dataset.filter === f);
+        });
+        document.querySelectorAll(".card").forEach((c) => {
+          const pal = c.dataset.palette;
+          c.classList.toggle("hidden", f !== "all" && pal !== f);
+        });
+      });
+
+      // Build grid. Use data-src instead of src so the IntersectionObserver
+      // below can lazy-load on demand — native loading="lazy" is unreliable
+      // on file:// (Chrome/Firefox treat local files differently and often
+      // fall back to eager loading, dumping all 250 requests at once).
+      EDITION.selected.forEach((s, i) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.idx = i;
+        card.dataset.palette = s.palette;
+        card.dataset.tokenId = s.tokenId;
+        // Grid image uses the small thumbnail when available (per
+        // optimize_for_web.cjs), falling back to the full filename for
+        // unoptimized folders. Modal still uses s.filename for native res.
+        // decoding=async + fetchpriority=low keep image work off the
+        // critical thread during scroll.
+        const gridSrc = s.thumbnail || s.filename;
+        card.innerHTML = `
+          <div class="card-img-wrap">
+            <img data-src="${gridSrc}" alt="#${s.tokenId} ${s.palette}" decoding="async" fetchpriority="low" />
+          </div>
+          <div class="card-meta">
+            <span class="token">#${String(s.tokenId).padStart(3, "0")}</span>
+            <span class="palette">${s.palette}</span>
+          </div>
+        `;
+        card.addEventListener("click", () => openModal(i));
+        grid.appendChild(card);
+      });
+
+      // ---- Lazy load images via IntersectionObserver ----
+      // Sets img.src only when the card is within 400px of the viewport.
+      // Adds .loaded for the fade-in transition once the image decodes.
+      const lazyObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const img = entry.target;
+            if (!img.dataset.src) continue;
+            img.addEventListener("load", () => img.classList.add("loaded"), {
+              once: true,
+            });
+            img.src = img.dataset.src;
+            img.removeAttribute("data-src");
+            lazyObserver.unobserve(img);
+          }
+        },
+        { rootMargin: "400px 0px" },
+      );
+      document.querySelectorAll(".card img[data-src]").forEach((img) => {
+        lazyObserver.observe(img);
+      });
+
+      // ---- layout + size controls ----
+      // Layouts:
+      //   uniform — every card is 1x1 (default)
+      //   varied  — every 7th tokenId is a 2x2 "feature" cell
+      //   mixed   — every 5th tokenId is 2x2; every 17th is 3x3 "hero"
+      // Roles (.role-feature / .role-hero) are applied to cards based on
+      // tokenId, then CSS picks them up only when the matching layout
+      // class is active on <main>. Switching layouts is a class swap +
+      // role recompute; no DOM rebuild.
+      function applyLayout(layout) {
+        grid.classList.remove(
+          "layout-uniform",
+          "layout-varied",
+          "layout-mixed",
+        );
+        grid.classList.add("layout-" + layout);
+        document.querySelectorAll(".card").forEach((card) => {
+          card.classList.remove("role-feature", "role-hero");
+          const id = parseInt(card.dataset.tokenId, 10);
+          if (layout === "varied") {
+            if (id % 7 === 0) card.classList.add("role-feature");
+          } else if (layout === "mixed") {
+            if (id % 17 === 0) card.classList.add("role-hero");
+            else if (id % 5 === 0) card.classList.add("role-feature");
+          }
+        });
+      }
+      function applySize(px) {
+        grid.style.setProperty("--grid-min", px + "px");
+      }
+      document.querySelectorAll(".ctrl-btn[data-size]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".ctrl-btn[data-size]")
+            .forEach((b) => b.classList.toggle("active", b === btn));
+          applySize(parseInt(btn.dataset.size, 10));
+        });
+      });
+      document.querySelectorAll(".ctrl-btn[data-layout]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".ctrl-btn[data-layout]")
+            .forEach((b) => b.classList.toggle("active", b === btn));
+          applyLayout(btn.dataset.layout);
+        });
+      });
+      document.querySelectorAll(".ctrl-btn[data-labels]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".ctrl-btn[data-labels]")
+            .forEach((b) => b.classList.toggle("active", b === btn));
+          grid.classList.toggle("labels-off", btn.dataset.labels === "off");
+        });
+      });
+      // Initialize with uniform layout (matches the .active button defaults)
+      applyLayout("uniform");
+
+      // ---- Modal zoom + pan ----
+      // Click image to toggle zoom (fit ↔ native size). When zoomed,
+      // drag to pan inside the wrap. Distinguishes click vs drag by
+      // measuring movement between mousedown and mouseup.
+      const modalImgWrap = modalImg.parentElement;
+      let panState = null; // { startX, startY, scrollLeft, scrollTop, downX, downY }
+
+      function resetZoom() {
+        modalImgWrap.classList.remove("zoomed", "dragging");
+      }
+
+      modalImg.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        panState = {
+          downX: e.clientX,
+          downY: e.clientY,
+          startX: e.clientX,
+          startY: e.clientY,
+          scrollLeft: modalImgWrap.scrollLeft,
+          scrollTop: modalImgWrap.scrollTop,
+          moved: false,
+        };
+        if (modalImgWrap.classList.contains("zoomed")) {
+          modalImgWrap.classList.add("dragging");
+        }
+      });
+      window.addEventListener("mousemove", (e) => {
+        if (!panState) return;
+        const dx = e.clientX - panState.startX;
+        const dy = e.clientY - panState.startY;
+        if (
+          Math.hypot(e.clientX - panState.downX, e.clientY - panState.downY) > 4
+        ) {
+          panState.moved = true;
+        }
+        if (modalImgWrap.classList.contains("zoomed")) {
+          modalImgWrap.scrollLeft = panState.scrollLeft - dx;
+          modalImgWrap.scrollTop = panState.scrollTop - dy;
+        }
+      });
+      window.addEventListener("mouseup", (e) => {
+        if (!panState) return;
+        modalImgWrap.classList.remove("dragging");
+        // True click (no drag) → toggle zoom. Center the click point
+        // when zooming in so the user sees what they clicked on.
+        if (!panState.moved) {
+          const wasZoomed = modalImgWrap.classList.contains("zoomed");
+          if (wasZoomed) {
+            resetZoom();
+          } else {
+            modalImgWrap.classList.add("zoomed");
+            // After zoom-in render, scroll so the clicked point is centered.
+            requestAnimationFrame(() => {
+              const rect = modalImg.getBoundingClientRect();
+              const wrapRect = modalImgWrap.getBoundingClientRect();
+              // Click position relative to image (still in pre-zoom coords).
+              // After zoom, image is at native size. Compute target scroll.
+              const relX = (panState.downX - wrapRect.left) / wrapRect.width;
+              const relY = (panState.downY - wrapRect.top) / wrapRect.height;
+              const targetX = relX * modalImg.naturalWidth - wrapRect.width / 2;
+              const targetY =
+                relY * modalImg.naturalHeight - wrapRect.height / 2;
+              modalImgWrap.scrollLeft = Math.max(0, targetX);
+              modalImgWrap.scrollTop = Math.max(0, targetY);
+            });
+          }
+        }
+        panState = null;
+      });
+
+      // Reset zoom when navigating between pieces or closing the modal.
+      // Wrap the existing openModal / closeModal so any caller (button
+      // click, keyboard nav, step()) gets the reset for free.
+      const _origOpenModal = openModal;
+      const _origCloseModal = closeModal;
+      openModal = function (idx) {
+        resetZoom();
+        return _origOpenModal(idx);
+      };
+      closeModal = function () {
+        resetZoom();
+        return _origCloseModal();
+      };
+
+      function openModal(idx) {
+        currentIdx = idx;
+        const s = EDITION.selected[idx];
+        modalImg.src = s.filename;
+        modalImg.alt = "#" + s.tokenId + " " + s.palette;
+        modalSide.innerHTML = `
+          <div class="token-id">#${String(s.tokenId).padStart(3, "0")}</div>
+          <div class="trait"><span class="k">palette</span><span class="v">${s.palette}</span></div>
+          <div class="trait"><span class="k">scale</span><span class="v">${s.scale}</span></div>
+          <div class="trait"><span class="k">style</span><span class="v">${s.style}</span></div>
+          <div class="seed">${s.seed}</div>
+        `;
+        modalPosition.textContent = idx + 1 + " / " + EDITION.selected.length;
+        modal.classList.add("show");
+      }
+
+      function closeModal() {
+        modal.classList.remove("show");
+      }
+
+      function step(dir) {
+        const N = EDITION.selected.length;
+        // Skip pieces filtered out by the active filter
+        let next = currentIdx;
+        for (let tries = 0; tries < N; tries++) {
+          next = (next + dir + N) % N;
+          if (
+            activeFilter === "all" ||
+            EDITION.selected[next].palette === activeFilter
+          ) {
+            openModal(next);
+            return;
+          }
+        }
+      }
+
+      modal.querySelector(".prev").addEventListener("click", () => step(-1));
+      modal.querySelector(".next").addEventListener("click", () => step(+1));
+      modal.querySelector(".close").addEventListener("click", closeModal);
+      modal.addEventListener("click", (e) => {
+        // Click on backdrop (not the image itself) closes
+        if (e.target === modal) closeModal();
+      });
+      window.addEventListener("keydown", (e) => {
+        if (!modal.classList.contains("show")) return;
+        if (e.key === "Escape") closeModal();
+        else if (e.key === "ArrowLeft") step(-1);
+        else if (e.key === "ArrowRight") step(+1);
+      });
+    </script>
+  </body>
+</html>

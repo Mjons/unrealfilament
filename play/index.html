@@ -1,0 +1,1715 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Filament — Play</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <meta
+      name="description"
+      content="Roll a seed. Watch a flow-field piece render. Free public toy from the makers of the Filament edition."
+    />
+    <!-- Open Graph -->
+    <meta property="og:title" content="Filament — Play" />
+    <meta
+      property="og:description"
+      content="Roll a seed. Watch a flow-field piece render. Free toy from the makers of the Filament edition."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://play.unrealfilament.art/" />
+    <meta
+      property="og:image"
+      content="https://unrealfilament.art/assets/og.jpg"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@UnrealFilament" />
+    <meta name="twitter:creator" content="@unrealape" />
+    <link
+      rel="icon"
+      href="https://unrealfilament.art/assets/favicon.svg"
+      type="image/svg+xml"
+    />
+
+    <style>
+      :root {
+        --bg: #0e0d0a;
+        --fg: #f5e8c8;
+        --accent: #b38b2a;
+        --muted: #888076;
+        --line: #2a2a26;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          system-ui,
+          sans-serif;
+        font-feature-settings: "ss01", "tnum";
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        min-height: 100vh;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        touch-action: pan-y;
+      }
+      header {
+        width: 100%;
+        max-width: 800px;
+        padding: 18px 20px 6px;
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      header .subtitle {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      header .galleryLink {
+        margin-left: auto;
+        font-size: 12px;
+        color: var(--muted);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+      }
+      header .galleryLink:hover {
+        color: var(--fg);
+        border-bottom-color: var(--line);
+      }
+      main {
+        width: 100%;
+        max-width: 800px;
+        padding: 12px 20px 32px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #pairBanner {
+        width: 100%;
+        padding: 12px 14px;
+        background: rgba(179, 139, 42, 0.12);
+        border: 1px solid rgba(179, 139, 42, 0.32);
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 14px;
+      }
+      #pairBanner strong {
+        color: var(--accent);
+      }
+      #canvasWrap {
+        width: min(90vw, 720px);
+        aspect-ratio: 1 / 1;
+        background: #18171a;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 22px;
+        touch-action: none;
+        position: relative;
+      }
+      /* First-visit empty-state hint over the canvas. Hidden by default
+         once a roll happens (body gets .has-rolled class). */
+      #emptyHint {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        text-align: center;
+        padding: 24px;
+        pointer-events: none;
+        color: var(--fg);
+        opacity: 0.85;
+        transition: opacity 360ms ease;
+      }
+      body.has-rolled #emptyHint {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #emptyHint .hint-title {
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+      #emptyHint .hint-sub {
+        font-size: 13px;
+        color: var(--muted);
+        max-width: 320px;
+        line-height: 1.5;
+      }
+      #emptyHint .hint-arrow {
+        font-size: 26px;
+        color: var(--accent);
+        animation: bounce 1.4s ease-in-out infinite;
+        margin-top: 4px;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(6px);
+        }
+      }
+      /* Subtle attention pulse on the Roll button for first-time visitors.
+         Removed by JS as soon as the user clicks Roll. */
+      body:not(.has-rolled) #btnRoll {
+        animation: rollPulse 2.2s ease-in-out infinite;
+      }
+      @keyframes rollPulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(179, 139, 42, 0.45);
+        }
+        50% {
+          box-shadow: 0 0 0 10px rgba(179, 139, 42, 0);
+        }
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .slot-machine {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+      .reels {
+        display: flex;
+        gap: 8px;
+      }
+      .reel {
+        min-width: 110px;
+        height: 56px;
+        padding: 0 10px;
+        background: #18171a;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        letter-spacing: 0.01em;
+        color: var(--fg);
+        font-variant-numeric: tabular-nums;
+        transition:
+          transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          background 250ms;
+      }
+      .reel.spinning {
+        background: #1f1d22;
+      }
+      .reel.landed {
+        animation: landed 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      @keyframes landed {
+        0% {
+          transform: translateY(-2px);
+        }
+        50% {
+          transform: translateY(1px);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+      button {
+        background: var(--accent);
+        color: var(--bg);
+        border: none;
+        border-radius: 6px;
+        padding: 12px 28px;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        font-family: inherit;
+        transition: opacity 100ms;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--fg);
+        border: 1px solid var(--line);
+      }
+      button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      button:hover:not(:disabled) {
+        opacity: 0.9;
+      }
+      #actionRow {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      #seedDisplay {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 14px;
+        font-feature-settings: "tnum";
+        letter-spacing: 0.02em;
+      }
+      #seedDisplay code {
+        color: var(--fg);
+        background: #18171a;
+        padding: 2px 6px;
+        border-radius: 3px;
+        border: 1px solid var(--line);
+      }
+      #toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.92);
+        color: #18171a;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-size: 13px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 220ms;
+        z-index: 1000;
+      }
+      #toast.show {
+        opacity: 1;
+      }
+      footer {
+        width: 100%;
+        max-width: 800px;
+        padding: 24px 20px;
+        font-size: 11px;
+        color: var(--muted);
+        text-align: center;
+        line-height: 1.6;
+      }
+      footer a {
+        color: var(--fg);
+        text-decoration: none;
+        border-bottom: 1px solid var(--line);
+      }
+      footer a:hover {
+        border-bottom-color: var(--fg);
+      }
+      @media (max-width: 480px) {
+        .reel {
+          min-width: 86px;
+          height: 50px;
+          font-size: 15px;
+          padding: 0 6px;
+        }
+        header h1 {
+          font-size: 19px;
+        }
+        button {
+          padding: 10px 20px;
+          font-size: 13px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Filament</h1>
+      <span class="subtitle">Play</span>
+      <a href="https://unrealfilament.art" class="galleryLink"
+        >View the edition →</a
+      >
+    </header>
+
+    <main>
+      <div id="pairBanner" hidden>
+        <strong>Rolling Twin for Pair #—.</strong> Lock when you're happy.
+      </div>
+
+      <div id="canvasWrap">
+        <canvas id="c" width="2000" height="2000"></canvas>
+        <div id="emptyHint">
+          <div class="hint-title">Click Roll to see your first piece</div>
+          <div class="hint-sub">
+            Three reels spin and land on a seed. The painter renders the piece.
+            Reroll as many times as you like.
+          </div>
+          <div class="hint-arrow">↓</div>
+        </div>
+      </div>
+
+      <div class="slot-machine">
+        <div class="reels">
+          <div class="reel" id="reel1">—</div>
+          <div class="reel" id="reel2">—</div>
+          <div class="reel" id="reel3">—</div>
+        </div>
+        <button id="btnRoll">Roll</button>
+      </div>
+
+      <div id="actionRow" hidden>
+        <button class="secondary" id="btnRollAgain">Roll again</button>
+        <button class="secondary" id="btnShare">Share</button>
+        <button class="secondary" id="btnSave">Save</button>
+        <button id="btnLockSeed" hidden>Lock seed for mint</button>
+      </div>
+
+      <div id="seedDisplay" hidden>seed: <code id="seedValue"></code></div>
+    </main>
+
+    <footer>
+      A flow-field painter in the flow-field tradition. Each curve becomes a
+      chain of beads.<br />
+      Made by [artist]. View the curated 250-piece edition at
+      <a href="https://unrealfilament.art">filament.art</a>.
+    </footer>
+
+    <div id="toast"></div>
+
+    <script>
+      /* =========================================================================
+         Filament Play — public seed-roll site (free + Pair Roll modes).
+         Spec: FILAMENT_PLAY_PLAN.md, TWIN_MINT_PLAN.md.
+         The algorithm code (PRNG, simplex, palettes, generate, draw helpers)
+         is copied verbatim from filament_v1.html so Twin renders here match
+         the eventual mint render bit-for-bit (same browser, same appVersion).
+         APP_VERSION must stay in sync with filament_v1.html.
+         ========================================================================= */
+      const APP_VERSION = "filament v1.0.0";
+
+      /* =========================================================================
+         Word lists for the slot machine. Curated — only valid seeds ever
+         leave the page (URLs hand-edited with arbitrary strings are rejected).
+         30 × 30 × 100 = 90,000 unique seeds.
+         ========================================================================= */
+      const ADJECTIVES = [
+        "dolce",
+        "forte",
+        "chiaro",
+        "scuro",
+        "antico",
+        "nuovo",
+        "lento",
+        "rapido",
+        "sereno",
+        "inquieto",
+        "vivo",
+        "profondo",
+        "aperto",
+        "vasto",
+        "denso",
+        "calmo",
+        "caldo",
+        "freddo",
+        "alto",
+        "basso",
+        "liscio",
+        "ruvido",
+        "mosso",
+        "fermo",
+        "libero",
+        "fisso",
+        "pieno",
+        "vuoto",
+        "leggero",
+        "pesante",
+      ];
+      const NOUNS = [
+        "corvo",
+        "gatto",
+        "lupo",
+        "fiume",
+        "monte",
+        "bosco",
+        "vento",
+        "mare",
+        "cielo",
+        "stella",
+        "notte",
+        "pietra",
+        "foglia",
+        "ombra",
+        "fuoco",
+        "giardino",
+        "ponte",
+        "torre",
+        "fontana",
+        "eco",
+        "luna",
+        "sole",
+        "nuvola",
+        "pioggia",
+        "neve",
+        "roccia",
+        "vela",
+        "piuma",
+        "cera",
+        "canto",
+      ];
+
+      function isValidSeed(seed) {
+        if (typeof seed !== "string") return false;
+        const m = seed.match(/^([a-z]+)-([a-z]+)-(\d{1,2})$/);
+        if (!m) return false;
+        const n = parseInt(m[3], 10);
+        return (
+          ADJECTIVES.includes(m[1]) && NOUNS.includes(m[2]) && n >= 0 && n < 100
+        );
+      }
+
+      /* =========================================================================
+         URL params + mode detection.
+         - ?seed=<adj>-<noun>-<n>  → preload that seed (Free or Pair mode)
+         - ?pair=N  → Pair Roll mode, N is the Edition piece # (1..250)
+           Production: gallery includes a JWT token to verify the deep-link.
+           Without verified token, fall back to Free Play (treat ?pair as
+           absent). Stub here — token check needs the gallery backend.
+         ========================================================================= */
+      const URL_PARAMS = new URLSearchParams(location.search);
+      const URL_SEED = URL_PARAMS.get("seed");
+      const URL_PAIR = parseInt(URL_PARAMS.get("pair"), 10);
+      // TODO(prod): verify URL_PARAMS.get("token") is a valid JWT signed by
+      //   the gallery before treating this as Pair Roll. Without that, anyone
+      //   could craft ?pair=42 URLs to spoof the flow.
+      const URL_PAIR_TOKEN = URL_PARAMS.get("token") || null;
+      const isPairMode = !isNaN(URL_PAIR) && URL_PAIR >= 1 && URL_PAIR <= 250;
+
+      /* =========================================================================
+         1. PRNG  (Mulberry32 seeded from a string) — copied from filament_v1.html
+         ========================================================================= */
+      function xmur3(str) {
+        let h = 1779033703 ^ str.length;
+        for (let i = 0; i < str.length; i++) {
+          h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+          h = (h << 13) | (h >>> 19);
+        }
+        return () => {
+          h = Math.imul(h ^ (h >>> 16), 2246822507);
+          h = Math.imul(h ^ (h >>> 13), 3266489909);
+          h ^= h >>> 16;
+          return h >>> 0;
+        };
+      }
+      function mulberry32(a) {
+        return function () {
+          a |= 0;
+          a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      function makeRng(seedStr) {
+        const hash = xmur3(String(seedStr));
+        return mulberry32(hash());
+      }
+
+      /* =========================================================================
+         2. Simplex noise (2D, seeded) — copied from filament_v1.html
+         ========================================================================= */
+      function makeSimplex(rng) {
+        const p = new Uint8Array(256);
+        for (let i = 0; i < 256; i++) p[i] = i;
+        for (let i = 255; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          [p[i], p[j]] = [p[j], p[i]];
+        }
+        const perm = new Uint8Array(512);
+        const permMod12 = new Uint8Array(512);
+        for (let i = 0; i < 512; i++) {
+          perm[i] = p[i & 255];
+          permMod12[i] = perm[i] % 12;
+        }
+        const grad3 = [
+          [1, 1],
+          [-1, 1],
+          [1, -1],
+          [-1, -1],
+          [1, 0],
+          [-1, 0],
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+          [0, 1],
+          [0, -1],
+        ];
+        const F2 = 0.5 * (Math.sqrt(3) - 1);
+        const G2 = (3 - Math.sqrt(3)) / 6;
+        return function noise2(xin, yin) {
+          let n0 = 0,
+            n1 = 0,
+            n2 = 0;
+          const s = (xin + yin) * F2;
+          const i = Math.floor(xin + s),
+            j = Math.floor(yin + s);
+          const t = (i + j) * G2;
+          const X0 = i - t,
+            Y0 = j - t;
+          const x0 = xin - X0,
+            y0 = yin - Y0;
+          let i1, j1;
+          if (x0 > y0) {
+            i1 = 1;
+            j1 = 0;
+          } else {
+            i1 = 0;
+            j1 = 1;
+          }
+          const x1 = x0 - i1 + G2,
+            y1 = y0 - j1 + G2;
+          const x2 = x0 - 1 + 2 * G2,
+            y2 = y0 - 1 + 2 * G2;
+          const ii = i & 255,
+            jj = j & 255;
+          const gi0 = permMod12[ii + perm[jj]];
+          const gi1 = permMod12[ii + i1 + perm[jj + j1]];
+          const gi2 = permMod12[ii + 1 + perm[jj + 1]];
+          let t0 = 0.5 - x0 * x0 - y0 * y0;
+          if (t0 >= 0) {
+            t0 *= t0;
+            n0 = t0 * t0 * (grad3[gi0][0] * x0 + grad3[gi0][1] * y0);
+          }
+          let t1 = 0.5 - x1 * x1 - y1 * y1;
+          if (t1 >= 0) {
+            t1 *= t1;
+            n1 = t1 * t1 * (grad3[gi1][0] * x1 + grad3[gi1][1] * y1);
+          }
+          let t2 = 0.5 - x2 * x2 - y2 * y2;
+          if (t2 >= 0) {
+            t2 *= t2;
+            n2 = t2 * t2 * (grad3[gi2][0] * x2 + grad3[gi2][1] * y2);
+          }
+          return 70 * (n0 + n1 + n2);
+        };
+      }
+
+      /* =========================================================================
+         3. Palettes — full set from filament_v1.html. Twin halves use Morandi
+         only, but we keep the others for potential v2 vibe-presets.
+         ========================================================================= */
+      const PALETTES = {
+        Morandi: {
+          bg: "#e8e2d6",
+          ink: "#2a2521",
+          colors: [
+            "#a89f8c",
+            "#7a7a6c",
+            "#c9b39a",
+            "#b4623d",
+            "#5e6b65",
+            "#d9d3c2",
+            "#8a7a62",
+          ],
+        },
+        Montefeltro: {
+          bg: "#e8dfc8",
+          ink: "#1e1a1a",
+          colors: [
+            "#1a3a7a",
+            "#b38b2a",
+            "#7a1f2a",
+            "#305b8a",
+            "#b7a06a",
+            "#2a3554",
+            "#c3ae86",
+            "#4c1f2f",
+          ],
+        },
+        Carpaccio: {
+          bg: "#dbe4df",
+          ink: "#162025",
+          colors: [
+            "#2f5d68",
+            "#a93e2a",
+            "#caa046",
+            "#6c8e88",
+            "#d9c68f",
+            "#3a2018",
+            "#eee5d0",
+          ],
+        },
+        Appennino: {
+          bg: "#d2d4cf",
+          ink: "#17191a",
+          colors: [
+            "#3f4a45",
+            "#7a887a",
+            "#c2b89a",
+            "#4a5562",
+            "#b66b5a",
+            "#888c86",
+            "#252a2c",
+          ],
+        },
+        Notturno: {
+          bg: "#0e0d1c",
+          ink: "#f0e6c8",
+          colors: [
+            "#3f3458",
+            "#b39a5e",
+            "#c48a9a",
+            "#222038",
+            "#9e8dae",
+            "#4e2438",
+            "#e8d7a2",
+          ],
+        },
+        Piero: {
+          bg: "#e0e3d9",
+          ink: "#2a2418",
+          colors: [
+            "#9eb4c2",
+            "#d8c3bc",
+            "#c2a865",
+            "#7c8c79",
+            "#8b6a52",
+            "#c8b79a",
+            "#3e4a5d",
+          ],
+        },
+        Marche: {
+          bg: "#dfd2b4",
+          ink: "#1e1814",
+          colors: [
+            "#4a7ca8",
+            "#9b5b3f",
+            "#8ca36b",
+            "#e6d4a8",
+            "#2e3d5a",
+            "#b08c4e",
+            "#6e3828",
+          ],
+        },
+        Pesaro: {
+          bg: "#f1ece2",
+          ink: "#162531",
+          colors: [
+            "#2e6f85",
+            "#3a8a94",
+            "#c3502e",
+            "#b2bcb4",
+            "#5c9caf",
+            "#2a4858",
+            "#d7b58a",
+          ],
+        },
+        Foglio: {
+          bg: "#ece3c8",
+          ink: "#13100a",
+          colors: [
+            "#7a5a28",
+            "#58382a",
+            "#2e2a22",
+            "#c4a26a",
+            "#4a5d6c",
+            "#8a462e",
+            "#d5c595",
+          ],
+        },
+        Raffaello: {
+          bg: "#ead7cb",
+          ink: "#2b1e16",
+          colors: [
+            "#a23a3a",
+            "#7ba2c2",
+            "#ebe1d0",
+            "#7a3e3a",
+            "#647e58",
+            "#c48572",
+            "#2d4a68",
+          ],
+        },
+        Lucente: {
+          bg: "#1c1e28",
+          ink: "#f3f0e8",
+          colors: [
+            "#c9ebe4",
+            "#f3d2a0",
+            "#d8c3e8",
+            "#8fc9d8",
+            "#f6eec8",
+            "#b27e9f",
+            "#5e728a",
+          ],
+        },
+        Fresco: {
+          bg: "#eadfc8",
+          ink: "#1e140e",
+          colors: [
+            "#d44a2c",
+            "#5f7e68",
+            "#b8772c",
+            "#2a3828",
+            "#d8c6a0",
+            "#7a3828",
+            "#8c8a5e",
+          ],
+        },
+        Terra: {
+          bg: "#d8cdb4",
+          ink: "#211a12",
+          colors: [
+            "#8a3f2d",
+            "#5a4a32",
+            "#8e8e88",
+            "#5e7345",
+            "#8fa7b8",
+            "#b07a45",
+            "#3a3024",
+          ],
+        },
+        Ombra: {
+          bg: "#e6e1d4",
+          ink: "#141210",
+          colors: [
+            "#3e2e2a",
+            "#6a4a40",
+            "#2a1f1c",
+            "#a28a7c",
+            "#4c3a38",
+            "#d2c1b0",
+            "#6c5952",
+          ],
+        },
+        Glaciale: {
+          bg: "#eaf0f4",
+          ink: "#1f2a36",
+          colors: [
+            "#5a8aa8",
+            "#2c4a5e",
+            "#b8c8d2",
+            "#84a6b8",
+            "#3a5a72",
+            "#d8e4ea",
+            "#6a8290",
+          ],
+        },
+        Tramonto: {
+          bg: "#f4ddc8",
+          ink: "#3a1f28",
+          colors: [
+            "#e8825a",
+            "#b85c6a",
+            "#d8a878",
+            "#783a4a",
+            "#ecb892",
+            "#c47284",
+            "#5a2838",
+          ],
+        },
+        Murano: {
+          bg: "#1a1218",
+          ink: "#f5e8c8",
+          colors: [
+            "#2a7f6e",
+            "#c12a3a",
+            "#2e4ea0",
+            "#e0b04a",
+            "#6e2854",
+            "#d8d4c2",
+            "#1f5a4a",
+          ],
+        },
+      };
+
+      /* =========================================================================
+         4. Canvas + Twin-default state. Per TWIN_MINT_PLAN.md §5: every Twin
+         varies only in seed; all 18 sliders + palette + scale + style are
+         locked at these values across the whole edition.
+         ========================================================================= */
+      const cvs = document.getElementById("c");
+      const ctx = cvs.getContext("2d", { alpha: false });
+
+      const state = {
+        seed: "filament",
+        palette: "Morandi",
+        scale: "mixed",
+        style: "beads",
+        turb: 0.35,
+        freq: 0.9,
+        len: 500,
+        den: 1.4,
+        mar: 60,
+        tilt: 0,
+        curl: 1.0,
+        spiral: 0,
+        focalX: 0.5,
+        focalY: 0.5,
+        smooth: 4,
+        twin: 5,
+        step: 1.0,
+        out: 1.0,
+        beadSize: 0.95,
+        beadGap: 0.05,
+        beadVar: 0.15,
+        taper: 0.25,
+        cpc: 3,
+        spine: 0.0,
+        crossGap: 2.0,
+        solid: 0.45,
+        rings: 0.2,
+        split: 0.12,
+        pie: 0.08,
+        dots: 0.1,
+        hollow: 0.05,
+        W: 2000,
+        H: 2000,
+      };
+
+      /* =========================================================================
+         5. Scale presets — copied from filament_v1.html
+         ========================================================================= */
+      const SCALES = {
+        micro: { min: 2, max: 6, step: 1.2, countMul: 4.0 },
+        small: { min: 4, max: 18, step: 1.6, countMul: 2.4 },
+        medium: { min: 10, max: 44, step: 2.0, countMul: 1.2 },
+        large: { min: 20, max: 90, step: 2.6, countMul: 0.55 },
+        jumbo: { min: 40, max: 180, step: 3.0, countMul: 0.25 },
+        mixed: { min: 3, max: 140, step: 2.0, countMul: 1.2 },
+      };
+
+      /* =========================================================================
+         6. Spatial hash grids — copied from filament_v1.html
+         ========================================================================= */
+      function obbOverlap(
+        c1x,
+        c1y,
+        t1x,
+        t1y,
+        hw1,
+        hl1,
+        c2x,
+        c2y,
+        t2x,
+        t2y,
+        hw2,
+        hl2,
+      ) {
+        const dx = c2x - c1x,
+          dy = c2y - c1y;
+        const A00 = Math.abs(t1x * t2x + t1y * t2y);
+        const A01 = Math.abs(t1y * t2x - t1x * t2y);
+        if (Math.abs(dx * t1x + dy * t1y) > hl1 + hl2 * A00 + hw2 * A01)
+          return false;
+        if (Math.abs(-dx * t1y + dy * t1x) > hw1 + hl2 * A01 + hw2 * A00)
+          return false;
+        if (Math.abs(dx * t2x + dy * t2y) > hl2 + hl1 * A00 + hw1 * A01)
+          return false;
+        if (Math.abs(-dx * t2y + dy * t2x) > hw2 + hl1 * A01 + hw1 * A00)
+          return false;
+        return true;
+      }
+      class Grid {
+        constructor(w, h, cell) {
+          this.w = w;
+          this.h = h;
+          this.cell = cell;
+          this.cols = Math.ceil(w / cell);
+          this.rows = Math.ceil(h / cell);
+          this.buckets = new Array(this.cols * this.rows);
+          for (let i = 0; i < this.buckets.length; i++) this.buckets[i] = [];
+        }
+        _key(cx, cy) {
+          return cy * this.cols + cx;
+        }
+        _range(cx, cy, tx, ty, hw, hl) {
+          const ex = Math.abs(tx) * hl + Math.abs(ty) * hw;
+          const ey = Math.abs(ty) * hl + Math.abs(tx) * hw;
+          const c = this.cell;
+          return [
+            Math.max(0, Math.floor((cx - ex) / c)),
+            Math.max(0, Math.floor((cy - ey) / c)),
+            Math.min(this.cols - 1, Math.floor((cx + ex) / c)),
+            Math.min(this.rows - 1, Math.floor((cy + ey) / c)),
+          ];
+        }
+        add(cx, cy, tx, ty, hw, hl) {
+          const [x0, y0, x1, y1] = this._range(cx, cy, tx, ty, hw, hl);
+          for (let yy = y0; yy <= y1; yy++)
+            for (let xx = x0; xx <= x1; xx++)
+              this.buckets[this._key(xx, yy)].push(cx, cy, tx, ty, hw, hl);
+        }
+        hits(cx, cy, tx, ty, hw, hl) {
+          const [x0, y0, x1, y1] = this._range(cx, cy, tx, ty, hw, hl);
+          for (let yy = y0; yy <= y1; yy++)
+            for (let xx = x0; xx <= x1; xx++) {
+              const b = this.buckets[this._key(xx, yy)];
+              for (let i = 0; i < b.length; i += 6) {
+                if (
+                  obbOverlap(
+                    cx,
+                    cy,
+                    tx,
+                    ty,
+                    hw,
+                    hl,
+                    b[i],
+                    b[i + 1],
+                    b[i + 2],
+                    b[i + 3],
+                    b[i + 4],
+                    b[i + 5],
+                  )
+                )
+                  return true;
+              }
+            }
+          return false;
+        }
+      }
+      class BeadGrid {
+        constructor(w, h, cell) {
+          this.cell = cell;
+          this.cols = Math.ceil(w / cell);
+          this.rows = Math.ceil(h / cell);
+          this.buckets = new Array(this.cols * this.rows);
+          for (let i = 0; i < this.buckets.length; i++) this.buckets[i] = [];
+        }
+        _k(cx, cy) {
+          return cy * this.cols + cx;
+        }
+        _range(x, y, r) {
+          const c = this.cell;
+          return [
+            Math.max(0, Math.floor((x - r) / c)),
+            Math.max(0, Math.floor((y - r) / c)),
+            Math.min(this.cols - 1, Math.floor((x + r) / c)),
+            Math.min(this.rows - 1, Math.floor((y + r) / c)),
+          ];
+        }
+        add(x, y, r, chainId) {
+          const [x0, y0, x1, y1] = this._range(x, y, r);
+          for (let cy = y0; cy <= y1; cy++)
+            for (let cx = x0; cx <= x1; cx++)
+              this.buckets[this._k(cx, cy)].push(x, y, r, chainId);
+        }
+        hitsOther(x, y, r, chainId, gap) {
+          const reach = r + gap;
+          const [x0, y0, x1, y1] = this._range(x, y, reach);
+          for (let cy = y0; cy <= y1; cy++)
+            for (let cx = x0; cx <= x1; cx++) {
+              const b = this.buckets[this._k(cx, cy)];
+              for (let i = 0; i < b.length; i += 4) {
+                if (b[i + 3] === chainId) continue;
+                const dx = b[i] - x,
+                  dy = b[i + 1] - y;
+                const total = b[i + 2] + r + gap;
+                if (dx * dx + dy * dy < total * total) return true;
+              }
+            }
+          return false;
+        }
+      }
+
+      /* =========================================================================
+         7. generate() — copied from filament_v1.html, with two stripped lines:
+         - vSeed display (no such element on Play)
+         - rafHandle preview branch (Play has no preview mode)
+         ========================================================================= */
+      function generate() {
+        const ps = 1.0;
+        const REF = 2000;
+        const sf = state.W / REF;
+        const rng = makeRng(state.seed);
+        const noise = makeSimplex(rng);
+
+        const pal = PALETTES[state.palette];
+        const W = Math.round(state.W * ps);
+        const H = Math.round(state.H * ps);
+        cvs.width = W;
+        cvs.height = H;
+
+        ctx.fillStyle = pal.bg;
+        ctx.fillRect(0, 0, W, H);
+
+        const turb = state.turb;
+        const tiltRad = (state.tilt * Math.PI) / 180;
+        const noiseScale = ((0.0012 + turb * 0.0025) * state.freq) / (ps * sf);
+        const curlAmt = state.curl;
+        const spiralAmt = state.spiral;
+        const hasSpiral = spiralAmt > 0.0001;
+        const fx = state.focalX * W;
+        const fy = state.focalY * H;
+        const fieldAngle = (x, y) => {
+          const n1 = noise(x * noiseScale, y * noiseScale);
+          const n2 =
+            noise(x * noiseScale * 2.1 + 100, y * noiseScale * 2.1 + 100) * 0.4;
+          const noiseAngle = (n1 + n2) * Math.PI * (1.0 + turb * 2.0);
+          const a = tiltRad + curlAmt * noiseAngle;
+          if (!hasSpiral) return a;
+          const dx = x - fx,
+            dy = y - fy;
+          const r = Math.hypot(dx, dy) || 1;
+          const tx = -dy / r,
+            ty = dx / r;
+          const vx = Math.cos(a) * (1 - spiralAmt) + tx * spiralAmt;
+          const vy = Math.sin(a) * (1 - spiralAmt) + ty * spiralAmt;
+          return Math.atan2(vy, vx);
+        };
+
+        const scaleDef = SCALES[state.scale];
+        const maxR = scaleDef.max * 0.5 * ps * sf;
+        const grid = new Grid(W, H, Math.max(10, maxR * 0.75));
+        const margin = state.mar * ps * sf;
+        const attempts = Math.round(
+          1400 * scaleDef.countMul * state.den * ps * ps,
+        );
+        const curves = [];
+
+        for (let k = 0; k < attempts; k++) {
+          const sx = margin + rng() * (W - 2 * margin);
+          const sy = margin + rng() * (H - 2 * margin);
+          let w;
+          if (state.scale === "mixed") {
+            const r = rng();
+            w =
+              r < 0.7
+                ? (scaleDef.min + rng() * 20) * ps * sf
+                : (20 + rng() * (scaleDef.max - 20)) * ps * sf;
+          } else {
+            w =
+              (scaleDef.min + rng() * (scaleDef.max - scaleDef.min)) * ps * sf;
+          }
+          const radius = w * 0.5;
+          const stepPx = scaleDef.step * state.step * ps * sf;
+          const halfLen = stepPx * 0.5;
+          const seedA = fieldAngle(sx, sy);
+          const buf = 2 * sf;
+          if (
+            grid.hits(
+              sx,
+              sy,
+              Math.cos(seedA),
+              Math.sin(seedA),
+              radius + buf,
+              halfLen + buf,
+            )
+          )
+            continue;
+          let pts = tracePath(
+            sx,
+            sy,
+            radius,
+            fieldAngle,
+            grid,
+            state.len,
+            stepPx,
+            margin,
+            W,
+            H,
+          );
+          if (pts.length < 6) continue;
+          pts = smoothPath(pts, state.smooth);
+          const bias = pickCurvePalette(pal, rng, state.cpc);
+          curves.push({ pts, w, bias, radius });
+          for (let i = 0; i < pts.length; i++) {
+            const a = Math.max(0, i - 1),
+              b = Math.min(pts.length - 1, i + 1);
+            let dxp = pts[b].x - pts[a].x,
+              dyp = pts[b].y - pts[a].y;
+            const L = Math.hypot(dxp, dyp) || 1;
+            dxp /= L;
+            dyp /= L;
+            grid.add(pts[i].x, pts[i].y, dxp, dyp, radius, halfLen);
+          }
+        }
+
+        curves.sort((a, b) => b.w - a.w);
+        const maxBeadR =
+          scaleDef.max * 0.5 * ps * sf * state.beadSize * (1 + state.beadVar);
+        const crossGap = Math.max(0, state.crossGap) * ps * sf;
+        const useGrid = crossGap > 0.01;
+        const beadGrid = useGrid
+          ? new BeadGrid(W, H, Math.max(8, maxBeadR * 2))
+          : null;
+        for (let i = 0; i < curves.length; i++) {
+          drawCurveAsBeads(
+            curves[i],
+            pal,
+            rng,
+            state.style,
+            beadGrid,
+            i,
+            crossGap,
+          );
+        }
+      }
+
+      function smoothPath(pts, passes) {
+        if (!passes || pts.length < 5) return pts;
+        let cur = pts.map((p) => ({ x: p.x, y: p.y }));
+        for (let pass = 0; pass < passes; pass++) {
+          const next = new Array(cur.length);
+          next[0] = cur[0];
+          next[cur.length - 1] = cur[cur.length - 1];
+          for (let i = 1; i < cur.length - 1; i++) {
+            next[i] = {
+              x: (cur[i - 1].x + 2 * cur[i].x + cur[i + 1].x) * 0.25,
+              y: (cur[i - 1].y + 2 * cur[i].y + cur[i + 1].y) * 0.25,
+            };
+          }
+          cur = next;
+        }
+        return cur;
+      }
+
+      function tracePath(
+        sx,
+        sy,
+        hw,
+        fieldAngle,
+        grid,
+        maxLen,
+        step,
+        margin,
+        W,
+        H,
+      ) {
+        const hl = step * 0.5;
+        const pts = [{ x: sx, y: sy }];
+        let x = sx,
+          y = sy;
+        for (let i = 0; i < maxLen; i++) {
+          const a = fieldAngle(x, y);
+          const cx = Math.cos(a),
+            sy_ = Math.sin(a);
+          x += cx * step;
+          y += sy_ * step;
+          if (x < margin || y < margin || x > W - margin || y > H - margin)
+            break;
+          if (grid.hits(x, y, cx, sy_, hw, hl)) break;
+          pts.push({ x, y });
+        }
+        x = sx;
+        y = sy;
+        for (let i = 0; i < maxLen; i++) {
+          const a = fieldAngle(x, y);
+          const cx = Math.cos(a),
+            sy_ = Math.sin(a);
+          x -= cx * step;
+          y -= sy_ * step;
+          if (x < margin || y < margin || x > W - margin || y > H - margin)
+            break;
+          if (grid.hits(x, y, cx, sy_, hw, hl)) break;
+          pts.unshift({ x, y });
+        }
+        return pts;
+      }
+
+      function drawCurveAsBeads(
+        curve,
+        pal,
+        rng,
+        style,
+        beadGrid,
+        chainId,
+        crossGap,
+      ) {
+        const pts = curve.pts;
+        const w = curve.w;
+        if (pts.length < 3) return;
+        const arc = new Float32Array(pts.length);
+        for (let i = 1; i < pts.length; i++) {
+          arc[i] =
+            arc[i - 1] +
+            Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+        }
+        const totalLen = arc[pts.length - 1];
+        if (totalLen < w * 0.6) return;
+
+        function sampleAt(s) {
+          let lo = 0,
+            hi = arc.length - 1;
+          while (lo < hi) {
+            const m = (lo + hi) >> 1;
+            if (arc[m] < s) lo = m + 1;
+            else hi = m;
+          }
+          const i1 = Math.max(1, lo);
+          const i0 = i1 - 1;
+          const span = Math.max(1e-6, arc[i1] - arc[i0]);
+          const t = Math.min(1, Math.max(0, (s - arc[i0]) / span));
+          const x = pts[i0].x + (pts[i1].x - pts[i0].x) * t;
+          const y = pts[i0].y + (pts[i1].y - pts[i0].y) * t;
+          const twin = state.twin | 0;
+          const a = Math.max(0, i0 - twin),
+            b = Math.min(pts.length - 1, i1 + twin);
+          let dx = pts[b].x - pts[a].x,
+            dy = pts[b].y - pts[a].y;
+          const L = Math.hypot(dx, dy) || 1;
+          dx /= L;
+          dy /= L;
+          return { x, y, tx: dx, ty: dy };
+        }
+
+        const thinMode =
+          style === "thin" ||
+          (style === "mixed-style" && rng() < 0.18 && w < 40);
+        if (thinMode) {
+          ctx.beginPath();
+          ctx.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+          ctx.strokeStyle = pal.ink;
+          ctx.lineWidth = Math.max(1, w * 0.14);
+          ctx.lineCap = "round";
+          ctx.stroke();
+          return;
+        }
+
+        if (state.spine > 0.01) {
+          const prevAlpha = ctx.globalAlpha;
+          ctx.globalAlpha = state.spine;
+          ctx.beginPath();
+          ctx.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+          ctx.strokeStyle = pal.ink;
+          ctx.lineWidth = Math.max(0.6, w * 0.07);
+          ctx.lineCap = "round";
+          ctx.stroke();
+          ctx.globalAlpha = prevAlpha;
+        }
+
+        const baseRadius = w * 0.5 * state.beadSize;
+        const gapMul = state.beadGap;
+        const varAmt = state.beadVar;
+        const taperAmt = state.taper;
+        const minR = Math.max(1, baseRadius * 0.25);
+        const gap = crossGap || 0;
+        let s = Math.min(baseRadius, totalLen * 0.5);
+        const endBuf = Math.min(baseRadius * 0.25, totalLen * 0.05);
+        const beads = [];
+        const maxIter = 2000;
+        let iter = 0;
+        while (s < totalLen - endBuf && iter++ < maxIter) {
+          const t = s / totalLen;
+          const fromEnd = Math.min(t, 1 - t);
+          const taperK = 1 - taperAmt + taperAmt * Math.min(1, fromEnd * 4);
+          const vFactor = 1 + (rng() - 0.5) * 2 * varAmt;
+          let r = Math.max(1, baseRadius * taperK * vFactor);
+          const p = sampleAt(s);
+          let placed = true;
+          if (beadGrid) {
+            let tries = 0;
+            while (
+              beadGrid.hitsOther(p.x, p.y, r, chainId, gap) &&
+              r > minR &&
+              tries++ < 6
+            )
+              r *= 0.78;
+            if (beadGrid.hitsOther(p.x, p.y, r, chainId, gap)) placed = false;
+          }
+          if (placed) {
+            beads.push({ x: p.x, y: p.y, r, tx: p.tx, ty: p.ty });
+            if (beadGrid) beadGrid.add(p.x, p.y, r, chainId);
+            const advance = Math.max(r * 0.6, r * 2 * (1 + gapMul));
+            s += advance;
+          } else {
+            s += Math.max(baseRadius * 0.6, 2);
+          }
+        }
+        for (const b of beads) drawBead(b, pal, rng, curve.bias);
+      }
+
+      function drawBead(b, pal, rng, bias) {
+        const { x, y, r, tx, ty } = b;
+        const treat = pickBeadTreatment(rng);
+        const outW =
+          Math.max(0, state.out) * Math.max(0.8, Math.min(3.0, r * 0.05 + 0.6));
+        const ink = pal.ink;
+        const along = Math.atan2(ty, tx);
+        ctx.lineJoin = "miter";
+        ctx.lineCap = "butt";
+        if (treat === "solid") {
+          beadFill(x, y, r, pickBiased(bias, rng));
+          if (outW > 0.05) beadStroke(x, y, r, ink, outW);
+        } else if (treat === "rings") {
+          const n = 2 + Math.floor(rng() * 4);
+          for (let i = 0; i < n; i++) {
+            const rr = r * (1 - i / n);
+            beadFill(x, y, rr, pickBiased(bias, rng));
+            if (outW > 0.05 && i > 0)
+              beadStroke(x, y, rr, ink, Math.max(0.6, outW * 0.6));
+          }
+          if (outW > 0.05) beadStroke(x, y, r, ink, outW);
+        } else if (treat === "split") {
+          const angle = along + (rng() < 0.5 ? 0 : Math.PI * 0.5);
+          const cA = pickBiased(bias, rng);
+          let cB = pickBiased(bias, rng);
+          if (cB === cA) cB = pickBiased(bias, rng);
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.arc(x, y, r, angle, angle + Math.PI);
+          ctx.closePath();
+          ctx.fillStyle = cA;
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.arc(x, y, r, angle + Math.PI, angle + Math.PI * 2);
+          ctx.closePath();
+          ctx.fillStyle = cB;
+          ctx.fill();
+          if (outW > 0.05) {
+            ctx.beginPath();
+            ctx.moveTo(x + Math.cos(angle) * r, y + Math.sin(angle) * r);
+            ctx.lineTo(
+              x + Math.cos(angle + Math.PI) * r,
+              y + Math.sin(angle + Math.PI) * r,
+            );
+            ctx.strokeStyle = ink;
+            ctx.lineWidth = outW;
+            ctx.stroke();
+            beadStroke(x, y, r, ink, outW);
+          }
+        } else if (treat === "pie") {
+          const n = 3 + Math.floor(rng() * 4);
+          const start = along;
+          for (let i = 0; i < n; i++) {
+            const a0 = start + (i / n) * Math.PI * 2;
+            const a1 = start + ((i + 1) / n) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.arc(x, y, r, a0, a1);
+            ctx.closePath();
+            ctx.fillStyle = pickBiased(bias, rng);
+            ctx.fill();
+          }
+          if (outW > 0.05) {
+            for (let i = 0; i < n; i++) {
+              const a = start + (i / n) * Math.PI * 2;
+              ctx.beginPath();
+              ctx.moveTo(x, y);
+              ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+              ctx.strokeStyle = ink;
+              ctx.lineWidth = Math.max(0.5, outW * 0.6);
+              ctx.stroke();
+            }
+            beadStroke(x, y, r, ink, outW);
+          }
+        } else if (treat === "dots") {
+          beadFill(x, y, r, pickBiased(bias, rng));
+          if (outW > 0.05) beadStroke(x, y, r, ink, outW);
+          const nDots = 1 + Math.floor(rng() * 2);
+          for (let i = 0; i < nDots; i++) {
+            const dr = r * (0.28 + rng() * 0.28);
+            beadFill(x, y, dr, pickBiased(bias, rng));
+            if (outW > 0.05)
+              beadStroke(x, y, dr, ink, Math.max(0.5, outW * 0.55));
+          }
+        } else if (treat === "hollow") {
+          const ringW = r * (0.15 + rng() * 0.25);
+          ctx.beginPath();
+          ctx.arc(x, y, Math.max(0.5, r - ringW * 0.5), 0, Math.PI * 2);
+          ctx.strokeStyle = pickBiased(bias, rng);
+          ctx.lineWidth = ringW;
+          ctx.stroke();
+          if (outW > 0.05) {
+            beadStroke(x, y, r, ink, outW);
+            beadStroke(x, y, Math.max(1, r - ringW), ink, outW);
+          }
+        }
+      }
+
+      function pickBeadTreatment(rng) {
+        const mix = [
+          ["solid", state.solid],
+          ["rings", state.rings],
+          ["split", state.split],
+          ["pie", state.pie],
+          ["dots", state.dots],
+          ["hollow", state.hollow],
+        ];
+        const total = mix.reduce((s, m) => s + m[1], 0);
+        if (total <= 0) return "solid";
+        let r = rng() * total;
+        for (const [name, w] of mix) {
+          r -= w;
+          if (r <= 0) return name;
+        }
+        return "solid";
+      }
+      function beadFill(x, y, r, color) {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+      }
+      function beadStroke(x, y, r, color, lw) {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw;
+        ctx.stroke();
+      }
+      function pickCurvePalette(pal, rng, n) {
+        n = Math.max(1, Math.min(pal.colors.length, n | 0 || 3));
+        const picks = [];
+        const pool = pal.colors.slice();
+        for (let i = 0; i < n && pool.length; i++) {
+          const idx = Math.floor(rng() * pool.length);
+          picks.push(pool.splice(idx, 1)[0]);
+        }
+        const weights = picks.map((_, i) => Math.pow(0.7, i));
+        return { picks, weights };
+      }
+      function pickBiased(bias, rng) {
+        const total = bias.weights.reduce((a, b) => a + b, 0);
+        let r = rng() * total;
+        for (let i = 0; i < bias.picks.length; i++) {
+          r -= bias.weights[i];
+          if (r <= 0) return bias.picks[i];
+        }
+        return bias.picks[bias.picks.length - 1];
+      }
+
+      /* =========================================================================
+         8. Toast helper
+         ========================================================================= */
+      const toastEl = document.getElementById("toast");
+      let toastTimer = null;
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1800);
+      }
+
+      /* =========================================================================
+         9. Slot machine — three reels, staggered spin + land, then render.
+         ========================================================================= */
+      const reelEls = [
+        document.getElementById("reel1"),
+        document.getElementById("reel2"),
+        document.getElementById("reel3"),
+      ];
+      let rolling = false;
+
+      function spinReel(el, finalText, durationMs, wordList) {
+        return new Promise((resolve) => {
+          el.classList.add("spinning");
+          el.classList.remove("landed");
+          const interval = setInterval(() => {
+            el.textContent =
+              wordList[Math.floor(Math.random() * wordList.length)];
+          }, 55);
+          setTimeout(() => {
+            clearInterval(interval);
+            el.textContent = finalText;
+            el.classList.remove("spinning");
+            // Force reflow so the landed animation replays
+            void el.offsetWidth;
+            el.classList.add("landed");
+            resolve();
+          }, durationMs);
+        });
+      }
+
+      async function rollAndRender() {
+        if (rolling) return;
+        rolling = true;
+        document.getElementById("btnRoll").disabled = true;
+        document.getElementById("btnRollAgain").disabled = true;
+        try {
+          const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+          const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+          const num = Math.floor(Math.random() * 100);
+          const numList = Array.from({ length: 100 }, (_, i) => String(i));
+          // Stagger: 600ms / 800ms / 1000ms — feels mechanical, not slot-y.
+          const p1 = spinReel(reelEls[0], adj, 600, ADJECTIVES);
+          const p2 = spinReel(reelEls[1], noun, 800, NOUNS);
+          const p3 = spinReel(reelEls[2], String(num), 1000, numList);
+          await Promise.all([p1, p2, p3]);
+          const seed = `${adj}-${noun}-${num}`;
+          await applySeed(seed, /* updateReels */ false);
+        } finally {
+          rolling = false;
+          document.getElementById("btnRoll").disabled = false;
+          document.getElementById("btnRollAgain").disabled = false;
+        }
+      }
+
+      // Twin-state derivation: palette / scale / style are picked
+      // deterministically from the seed using a separate RNG stream
+      // (suffix ":meta") so they don't desync the main render RNG inside
+      // generate(). Same seed → same combo every render, including the
+      // eventual mint-time Twin render.
+      // 17 palettes × 6 scales × 3 styles = 306 categorical combinations
+      // layered on the 90,000-seed space.
+      const STYLE_OPTIONS = ["beads", "mixed-style", "thin"];
+      function deriveStateFromSeed(seed) {
+        const metaRng = makeRng(seed + ":meta");
+        const palNames = Object.keys(PALETTES);
+        state.palette = palNames[Math.floor(metaRng() * palNames.length)];
+        const scaleNames = Object.keys(SCALES);
+        state.scale = scaleNames[Math.floor(metaRng() * scaleNames.length)];
+        state.style =
+          STYLE_OPTIONS[Math.floor(metaRng() * STYLE_OPTIONS.length)];
+      }
+
+      async function applySeed(seed, updateReels = true) {
+        if (!isValidSeed(seed)) {
+          // Silently ignore invalid seeds (URL hand-edits, etc.)
+          return;
+        }
+        // Hide first-visit hint + stop the Roll button pulse on the first
+        // successful render. Idempotent — safe to call repeatedly.
+        document.body.classList.add("has-rolled");
+        state.seed = seed;
+        deriveStateFromSeed(seed);
+        if (updateReels) {
+          const m = seed.match(/^([a-z]+)-([a-z]+)-(\d{1,2})$/);
+          reelEls[0].textContent = m[1];
+          reelEls[1].textContent = m[2];
+          reelEls[2].textContent = m[3];
+        }
+        // Render. Yield first so the reel-landed animation paints before
+        // the canvas blocks the main thread.
+        await new Promise((r) => requestAnimationFrame(r));
+        generate();
+        // Update URL without a reload — share-friendly.
+        const url = new URL(location.href);
+        url.searchParams.set("seed", seed);
+        history.replaceState(null, "", url.toString());
+        // Reveal action row + seed display.
+        document.getElementById("actionRow").hidden = false;
+        const seedDisplay = document.getElementById("seedDisplay");
+        seedDisplay.hidden = false;
+        document.getElementById("seedValue").textContent = seed;
+      }
+
+      /* =========================================================================
+         10. Free Play affordances
+         ========================================================================= */
+      async function shareUrl() {
+        const url = location.href;
+        try {
+          if (navigator.share) {
+            await navigator.share({
+              title: "Filament — Play",
+              text: `My roll: ${state.seed}`,
+              url,
+            });
+            return;
+          }
+          await navigator.clipboard.writeText(url);
+          showToast("Link copied!");
+        } catch (e) {
+          if (e.name !== "AbortError") {
+            // Fallback for browsers without clipboard API in non-HTTPS contexts
+            const tmp = document.createElement("input");
+            tmp.value = url;
+            document.body.appendChild(tmp);
+            tmp.select();
+            try {
+              document.execCommand("copy");
+              showToast("Link copied!");
+            } catch {
+              showToast("Copy failed — copy the URL manually");
+            }
+            tmp.remove();
+          }
+        }
+      }
+
+      const SAVED_KEY = "filament-play-saved";
+      function loadSaved() {
+        try {
+          return JSON.parse(localStorage.getItem(SAVED_KEY) || "[]");
+        } catch {
+          return [];
+        }
+      }
+      function saveCurrent() {
+        const saved = loadSaved();
+        if (saved.includes(state.seed)) {
+          showToast("Already saved");
+          return;
+        }
+        saved.unshift(state.seed);
+        // Cap at 200 to avoid unbounded growth on a long-lived device
+        const trimmed = saved.slice(0, 200);
+        try {
+          localStorage.setItem(SAVED_KEY, JSON.stringify(trimmed));
+          showToast(`Saved: ${state.seed}`);
+        } catch {
+          showToast("Save failed (storage full?)");
+        }
+      }
+
+      /* =========================================================================
+         11. Pair Roll handoff (stub — no gallery backend yet).
+         Production: redirect to the gallery checkout with seed + pair.
+         For now: copy the locked seed to clipboard + show what would happen.
+         ========================================================================= */
+      function lockSeedForMint() {
+        if (!isPairMode) return;
+        const target = `https://unrealfilament.art/checkout?seed=${encodeURIComponent(
+          state.seed,
+        )}&pair=${URL_PAIR}`;
+        // Stub: show the would-be redirect target. When the gallery is live,
+        // replace this with: location.href = target;
+        navigator.clipboard?.writeText(target).catch(() => {});
+        showToast(
+          `Locked seed for Pair #${URL_PAIR} — checkout link copied (stub)`,
+        );
+      }
+
+      /* =========================================================================
+         12. Wire up buttons + init
+         ========================================================================= */
+      document.getElementById("btnRoll").onclick = rollAndRender;
+      document.getElementById("btnRollAgain").onclick = rollAndRender;
+      document.getElementById("btnShare").onclick = shareUrl;
+      document.getElementById("btnSave").onclick = saveCurrent;
+      document.getElementById("btnLockSeed").onclick = lockSeedForMint;
+
+      // Pair Roll mode visuals — banner + Lock CTA in place of Save/Share.
+      if (isPairMode) {
+        const banner = document.getElementById("pairBanner");
+        banner.hidden = false;
+        banner.innerHTML =
+          `<strong>Rolling Twin for Pair #${URL_PAIR}.</strong> ` +
+          `Roll until you find one you love, then lock it for the mint.`;
+        document.getElementById("btnLockSeed").hidden = false;
+        document.getElementById("btnSave").hidden = true;
+        document.getElementById("btnShare").hidden = true;
+      }
+
+      // If the URL carries a valid pre-loaded seed, render it now.
+      // Otherwise the page sits on an empty canvas + Roll button.
+      if (URL_SEED && isValidSeed(URL_SEED)) {
+        applySeed(URL_SEED, true);
+      } else {
+        // Paint the canvas background a flat dark so the empty state has a
+        // shape rather than looking broken.
+        ctx.fillStyle = "#18171a";
+        ctx.fillRect(0, 0, cvs.width, cvs.height);
+      }
+    </script>
+  </body>
+</html>
