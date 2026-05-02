@@ -183,11 +183,6 @@
         height: 100%;
         display: block;
         object-fit: cover;
-        opacity: 0;
-        transition: opacity 220ms ease;
-      }
-      .card img.loaded {
-        opacity: 1;
       }
       /* Layout role spans — apply only under matching layout class. */
       main.layout-varied .card.role-feature,
@@ -392,7 +387,7 @@
         }
       }
       /* Site-wide nav prefixed with .fil- to avoid colliding with the
-         preview's own header/nav styles. Sits above the gallery's own
+         gallery's own header/nav styles. Sits above the gallery's own
          header which contains the size/layout/labels controls. */
       .fil-nav {
         position: sticky;
@@ -441,8 +436,6 @@
       .fil-links a.active {
         color: var(--fg);
       }
-      /* Gallery's own header (filters + controls) sits below the site
-         nav. Drop its sticky behavior so only one header sticks. */
       header {
         position: static !important;
       }
@@ -3509,25 +3502,23 @@
         });
       });
 
-      // Build grid. Use data-src instead of src so the IntersectionObserver
-      // below can lazy-load on demand — native loading="lazy" is unreliable
-      // on file:// (Chrome/Firefox treat local files differently and often
-      // fall back to eager loading, dumping all 250 requests at once).
+      // Build grid. Native loading="lazy" handles deferred loading at the
+      // browser level — works reliably over HTTPS (the file:// protocol
+      // edge cases that previously pushed us to a JS-based observer don't
+      // apply on a real server). decoding="async" + fetchpriority="low"
+      // keep image work off the critical thread during scroll.
       EDITION.selected.forEach((s, i) => {
         const card = document.createElement("div");
         card.className = "card";
         card.dataset.idx = i;
         card.dataset.palette = s.palette;
         card.dataset.tokenId = s.tokenId;
-        // Grid image uses the small thumbnail when available (per
-        // optimize_for_web.cjs), falling back to the full filename for
-        // unoptimized folders. Modal still uses s.filename for native res.
-        // decoding=async + fetchpriority=low keep image work off the
-        // critical thread during scroll.
+        // Grid uses the small thumbnail when available (per
+        // optimize_for_web.cjs); modal uses s.filename for native res.
         const gridSrc = s.thumbnail || s.filename;
         card.innerHTML = `
           <div class="card-img-wrap">
-            <img data-src="${gridSrc}" alt="#${s.tokenId} ${s.palette}" decoding="async" fetchpriority="low" />
+            <img src="${gridSrc}" alt="#${s.tokenId} ${s.palette}" loading="lazy" decoding="async" fetchpriority="low" />
           </div>
           <div class="card-meta">
             <span class="token">#${String(s.tokenId).padStart(3, "0")}</span>
@@ -3536,29 +3527,6 @@
         `;
         card.addEventListener("click", () => openModal(i));
         grid.appendChild(card);
-      });
-
-      // ---- Lazy load images via IntersectionObserver ----
-      // Sets img.src only when the card is within 400px of the viewport.
-      // Adds .loaded for the fade-in transition once the image decodes.
-      const lazyObserver = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (!entry.isIntersecting) continue;
-            const img = entry.target;
-            if (!img.dataset.src) continue;
-            img.addEventListener("load", () => img.classList.add("loaded"), {
-              once: true,
-            });
-            img.src = img.dataset.src;
-            img.removeAttribute("data-src");
-            lazyObserver.unobserve(img);
-          }
-        },
-        { rootMargin: "400px 0px" },
-      );
-      document.querySelectorAll(".card img[data-src]").forEach((img) => {
-        lazyObserver.observe(img);
       });
 
       // ---- layout + size controls ----
