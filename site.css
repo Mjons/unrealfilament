@@ -173,7 +173,7 @@ a:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.5;
+  opacity: 0.25;
 }
 .hero-bg::after {
   /* Vignette so the text reads on any piece */

@@ -4,9 +4,14 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/:path*",
+      "source": "/",
       "has": [{ "type": "host", "value": "play.unrealfilament.art" }],
-      "destination": "/play/:path*"
+      "destination": "/play/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "play.unrealfilament.art" }],
+      "destination": "/play/$1"
     }
   ],
   "redirects": [

@@ -10,3 +10,7 @@ desktop.ini
 
 # Vercel local dev artifacts (if you ever run `vercel dev` here)
 .vercel
+
+# Windows shell artifact — a "nul" file sometimes appears from `> nul`
+# redirection. It's a reserved device name and git can't index it.
+nul
