@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Filament — Play</title>
+    <title>Filament · Play</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1"
@@ -12,7 +12,7 @@
       content="Roll a seed. Watch a flow-field piece render. Free public toy from the makers of the Filament edition."
     />
     <!-- Open Graph -->
-    <meta property="og:title" content="Filament — Play" />
+    <meta property="og:title" content="Filament · Play" />
     <meta
       property="og:description"
       content="Roll a seed. Watch a flow-field piece render. Free toy from the makers of the Filament edition."
@@ -394,7 +394,7 @@
     <script>
       /* =========================================================================
          Filament Play — public seed-roll site (free + Pair Roll modes).
-         Spec: FILAMENT_PLAY_PLAN.md, TWIN_MINT_PLAN.md.
+         Spec: docs/FILAMENT_PLAY_PLAN.md, docs/TWIN_MINT_PLAN.md.
          The algorithm code (PRNG, simplex, palettes, generate, draw helpers)
          is copied verbatim from filament_v1.html so Twin renders here match
          the eventual mint render bit-for-bit (same browser, same appVersion).
@@ -486,6 +486,9 @@
          URL params + mode detection.
          - ?seed=<adj>-<noun>-<n>  → preload that seed (Free or Pair mode)
          - ?pair=N  → Pair Roll mode, N is the Edition piece # (1..250)
+         - ?palette=<Name>  → in Pair mode, Twin inherits this palette from the
+           paired Edition. Validated against PALETTES at use time (PALETTES is
+           defined further down). Invalid or missing falls back to seed-rolled.
            Production: gallery includes a JWT token to verify the deep-link.
            Without verified token, fall back to Free Play (treat ?pair as
            absent). Stub here — token check needs the gallery backend.
@@ -493,6 +496,7 @@
       const URL_PARAMS = new URLSearchParams(location.search);
       const URL_SEED = URL_PARAMS.get("seed");
       const URL_PAIR = parseInt(URL_PARAMS.get("pair"), 10);
+      const URL_PAIR_PALETTE = URL_PARAMS.get("palette");
       // TODO(prod): verify URL_PARAMS.get("token") is a valid JWT signed by
       //   the gallery before treating this as Pair Roll. Without that, anyone
       //   could craft ?pair=42 URLs to spoof the flow.
@@ -839,7 +843,7 @@
       };
 
       /* =========================================================================
-         4. Canvas + Twin-default state. Per TWIN_MINT_PLAN.md §5: every Twin
+         4. Canvas + Twin-default state. Per docs/TWIN_MINT_PLAN.md §5: every Twin
          varies only in seed; all 18 sliders + palette + scale + style are
          locked at these values across the whole edition.
          ========================================================================= */
@@ -1553,18 +1557,31 @@
         }
       }
 
-      // Twin-state derivation: palette / scale / style are picked
-      // deterministically from the seed using a separate RNG stream
-      // (suffix ":meta") so they don't desync the main render RNG inside
-      // generate(). Same seed → same combo every render, including the
-      // eventual mint-time Twin render.
-      // 17 palettes × 6 scales × 3 styles = 306 categorical combinations
-      // layered on the 90,000-seed space.
+      // Twin-state derivation: scale + style are picked deterministically
+      // from the seed using a separate RNG stream (suffix ":meta") so they
+      // don't desync the main render RNG inside generate(). Same seed →
+      // same scale + style every render, including the eventual mint-time
+      // Twin render.
+      //
+      // Palette is special. In Pair mode it's inherited from the paired
+      // Edition (URL_PAIR_PALETTE) so the two halves read as one pair.
+      // In Free Play it falls back to a seed-rolled palette. We always
+      // consume the palette metaRng() draw so scale + style positions in
+      // the stream are identical between the two modes — a buyer who
+      // tested a seed in Free Play sees the same scale + style when they
+      // roll it in Pair mode; only the palette swaps.
       const STYLE_OPTIONS = ["beads", "mixed-style", "thin"];
-      function deriveStateFromSeed(seed) {
+      function deriveStateFromSeed(seed, pairPalette /* nullable */) {
         const metaRng = makeRng(seed + ":meta");
         const palNames = Object.keys(PALETTES);
-        state.palette = palNames[Math.floor(metaRng() * palNames.length)];
+        const rolledPalette = palNames[Math.floor(metaRng() * palNames.length)];
+        if (pairPalette && !PALETTES[pairPalette]) {
+          console.warn(
+            `Unknown pair palette "${pairPalette}" — falling back to seed-rolled palette.`,
+          );
+        }
+        state.palette =
+          pairPalette && PALETTES[pairPalette] ? pairPalette : rolledPalette;
         const scaleNames = Object.keys(SCALES);
         state.scale = scaleNames[Math.floor(metaRng() * scaleNames.length)];
         state.style =
@@ -1580,7 +1597,7 @@
         // successful render. Idempotent — safe to call repeatedly.
         document.body.classList.add("has-rolled");
         state.seed = seed;
-        deriveStateFromSeed(seed);
+        deriveStateFromSeed(seed, isPairMode ? URL_PAIR_PALETTE : null);
         if (updateReels) {
           const m = seed.match(/^([a-z]+)-([a-z]+)-(\d{1,2})$/);
           reelEls[0].textContent = m[1];
@@ -1692,8 +1709,15 @@
       if (isPairMode) {
         const banner = document.getElementById("pairBanner");
         banner.hidden = false;
+        // Show the inherited palette in the banner so the buyer understands
+        // why it doesn't change between rolls. Quiet — the palette name
+        // sits next to the pair number, not as its own pill.
+        const paletteNote =
+          URL_PAIR_PALETTE && PALETTES[URL_PAIR_PALETTE]
+            ? ` · ${URL_PAIR_PALETTE} palette`
+            : "";
         banner.innerHTML =
-          `<strong>Rolling Twin for Pair #${URL_PAIR}.</strong> ` +
+          `<strong>Rolling Twin for Pair #${URL_PAIR}${paletteNote}.</strong> ` +
           `Roll until you find one you love, then lock it for the mint.`;
         document.getElementById("btnLockSeed").hidden = false;
         document.getElementById("btnSave").hidden = true;

@@ -2,14 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Filament — a 250-pair flow-field edition</title>
+    <title>Filament · a 250-pair flow-field edition</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1"
     />
     <meta
       name="description"
-      content="A 250-pair edition of generative flow-field artwork. Each mint pairs an artist-chosen piece with a piece you roll yourself."
+      content="A 250-pair flow-field edition. Each mint: one piece I kept, one piece you roll."
     />
     <meta name="theme-color" content="#0e0d0a" />
 
@@ -17,11 +17,11 @@
     <meta property="og:type" content="website" />
     <meta
       property="og:title"
-      content="Filament — a 250-pair flow-field edition"
+      content="Filament · a 250-pair flow-field edition"
     />
     <meta
       property="og:description"
-      content="Each mint pairs an artist-chosen piece with one you roll yourself. Two artworks, one mint, delivered together. Coming soon."
+      content="Each mint: one piece I kept, one piece you roll. Two halves of one frame. Coming soon."
     />
     <meta
       property="og:image"
@@ -73,12 +73,10 @@
       <section>
         <div class="section-narrow">
           <div class="section-eyebrow">The edition</div>
-          <h2>250 pairs. Hand-picked from 10 thousand candidates.</h2>
+          <h2>250 pairs. The ones I kept.</h2>
           <p>
-            Each mint of Filament delivers two artworks together: an Edition
-            piece I curated from the working pool, and a Twin piece you roll
-            yourself in the moment of purchase. Two halves of one frame, minted
-            in a single transaction.
+            Each mint pairs one piece I kept with one piece you roll on the
+            spot. Both arrive together. Two halves of one frame.
           </p>
           <p>
             Italian-named palettes, beaded chains traced through layered simplex
@@ -171,33 +169,157 @@
         <div class="section-narrow">
           <div class="section-eyebrow">The pair</div>
           <h2>One mint, two artworks.</h2>
-          <p>
-            When you buy a piece, you receive both halves of the pair as two
-            ERC-721 tokens, delivered in the same transaction.
-          </p>
+          <p>Buy a piece, get both halves of the pair. They arrive together.</p>
           <div class="pair-concept">
-            <div class="pair-tile">
-              <div class="pair-tile-label">Edition</div>
-              <div class="pair-tile-name">#N</div>
+            <div class="pair-tile pair-tile--edition">
+              <svg
+                class="pair-tile-art"
+                viewBox="0 0 220 220"
+                aria-hidden="true"
+              >
+                <defs>
+                  <radialGradient id="edPaper" cx="50%" cy="40%" r="70%">
+                    <stop
+                      offset="0%"
+                      stop-color="#f5e8c8"
+                      stop-opacity="0.06"
+                    />
+                    <stop offset="100%" stop-color="#f5e8c8" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <rect width="220" height="220" fill="url(#edPaper)" />
+                <!-- a hand-curated chain — deliberate, warm -->
+                <path
+                  d="M20 160 Q 60 90, 110 110 T 200 70"
+                  stroke="#3a3530"
+                  stroke-width="0.6"
+                  fill="none"
+                  opacity="0.55"
+                />
+                <circle cx="28" cy="158" r="6" fill="#b38b2a" />
+                <circle cx="46" cy="138" r="9" fill="#1f1d1a" />
+                <circle cx="46" cy="138" r="5" fill="#f5e8c8" />
+                <circle cx="46" cy="138" r="2" fill="#1f1d1a" />
+                <circle cx="68" cy="118" r="11" fill="#c79a30" />
+                <circle
+                  cx="68"
+                  cy="118"
+                  r="11"
+                  fill="none"
+                  stroke="#1f1d1a"
+                  stroke-width="1"
+                />
+                <circle cx="92" cy="112" r="7" fill="#a85a3a" />
+                <circle cx="116" cy="110" r="14" fill="#1f1d1a" />
+                <circle cx="116" cy="110" r="9" fill="#d8cba8" />
+                <circle cx="116" cy="110" r="4" fill="#a85a3a" />
+                <circle cx="142" cy="100" r="6" fill="#3d5a5e" />
+                <circle cx="166" cy="86" r="10" fill="#f5e8c8" />
+                <circle
+                  cx="166"
+                  cy="86"
+                  r="10"
+                  fill="none"
+                  stroke="#1f1d1a"
+                  stroke-width="1"
+                />
+                <circle cx="166" cy="86" r="4" fill="#b38b2a" />
+                <circle cx="190" cy="76" r="5" fill="#3d5a5e" />
+                <circle cx="204" cy="72" r="3" fill="#1f1d1a" />
+              </svg>
+              <div class="pair-tile-meta">
+                <span class="pair-tile-label">Edition</span>
+                <span class="pair-tile-num">1 / 250</span>
+              </div>
               <div class="pair-tile-desc">
-                The artist's hand-picked piece — one of 250 curated from the
-                working pool.
+                One I kept out of a much larger pile.
               </div>
             </div>
-            <div class="pair-plus">+</div>
-            <div class="pair-tile">
-              <div class="pair-tile-label">Twin</div>
-              <div class="pair-tile-name">#N</div>
+
+            <div class="pair-link" aria-hidden="true">
+              <svg viewBox="0 0 80 200" preserveAspectRatio="none">
+                <line
+                  x1="0"
+                  y1="100"
+                  x2="80"
+                  y2="100"
+                  stroke="#b38b2a"
+                  stroke-width="0.8"
+                  opacity="0.5"
+                />
+              </svg>
+              <span class="pair-link-bead">
+                <span class="pair-link-bead-inner"></span>
+              </span>
+            </div>
+
+            <div class="pair-tile pair-tile--twin">
+              <svg
+                class="pair-tile-art"
+                viewBox="0 0 220 220"
+                aria-hidden="true"
+              >
+                <defs>
+                  <pattern
+                    id="twinDots"
+                    width="14"
+                    height="14"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <circle
+                      cx="7"
+                      cy="7"
+                      r="0.6"
+                      fill="#f5e8c8"
+                      opacity="0.08"
+                    />
+                  </pattern>
+                </defs>
+                <rect width="220" height="220" fill="url(#twinDots)" />
+                <!-- a rolled chain — same logic, different seed -->
+                <path
+                  d="M16 80 Q 70 130, 130 100 T 210 150"
+                  stroke="#3a3530"
+                  stroke-width="0.6"
+                  fill="none"
+                  opacity="0.55"
+                />
+                <circle cx="22" cy="84" r="5" fill="#3d5a5e" />
+                <circle cx="42" cy="98" r="9" fill="#1f1d1a" />
+                <circle cx="42" cy="98" r="5" fill="#7fa3a8" />
+                <circle cx="64" cy="112" r="13" fill="#3d5a5e" />
+                <circle
+                  cx="64"
+                  cy="112"
+                  r="13"
+                  fill="none"
+                  stroke="#1f1d1a"
+                  stroke-width="1"
+                />
+                <circle cx="64" cy="112" r="5" fill="#f5e8c8" />
+                <circle cx="90" cy="118" r="7" fill="#a85a3a" />
+                <circle cx="112" cy="108" r="11" fill="#1f1d1a" />
+                <circle cx="112" cy="108" r="7" fill="#7fa3a8" />
+                <circle cx="112" cy="108" r="3" fill="#1f1d1a" />
+                <circle cx="138" cy="104" r="8" fill="#b38b2a" />
+                <circle cx="162" cy="118" r="10" fill="#1f1d1a" />
+                <circle cx="162" cy="118" r="6" fill="#d8cba8" />
+                <circle cx="186" cy="138" r="6" fill="#3d5a5e" />
+                <circle cx="204" cy="148" r="4" fill="#b38b2a" />
+              </svg>
+              <div class="pair-tile-meta">
+                <span class="pair-tile-label">Twin</span>
+                <span class="pair-tile-num">1 / 250</span>
+              </div>
               <div class="pair-tile-desc">
-                A piece you roll yourself on Filament Play — the slot machine
-                picks the seed; the algorithm renders it.
+                One you roll on Filament Play. The slot machine picks the seed;
+                the algorithm renders it.
               </div>
             </div>
           </div>
           <p>
-            The Edition is the artist's voice. The Twin is yours. Together they
-            share a pair number — a single visible link between the two halves
-            on chain.
+            The Edition is mine. The Twin is yours. Same pair number on both.
+            The halves stay linked on chain.
           </p>
         </div>
       </section>
