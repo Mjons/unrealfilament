@@ -2,6 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- Base URL forces relative image paths to resolve against /edition/
+         even when Vercel's cleanUrls strips the trailing slash from the
+         canonical URL (/edition/ → /edition). Without this, the browser
+         resolves filament_xxx.webp against /edition (no trailing slash)
+         and tries to fetch /filament_xxx.webp at the apex, which 404s. -->
+    <base href="/edition/" />
     <title>The edition — Filament</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta
