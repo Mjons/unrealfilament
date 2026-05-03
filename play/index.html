@@ -86,16 +86,24 @@
         letter-spacing: 0.12em;
         text-transform: uppercase;
       }
-      header .galleryLink {
+      header nav.playPageNav {
         margin-left: auto;
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      header nav.playPageNav a {
         font-size: 12px;
         color: var(--muted);
         text-decoration: none;
         border-bottom: 1px solid transparent;
       }
-      header .galleryLink:hover {
+      header nav.playPageNav a:hover {
         color: var(--fg);
         border-bottom-color: var(--line);
+      }
+      header nav.playPageNav a.active {
+        color: var(--fg);
       }
       main {
         width: 100%;
@@ -178,6 +186,12 @@
          Removed by JS as soon as the user clicks Roll. */
       body:not(.has-rolled) #btnRoll {
         animation: rollPulse 2.2s ease-in-out infinite;
+      }
+      /* After first roll, the action-row's "Roll again" takes over —
+         hide the slot-machine's primary Roll button so users don't see
+         two visually distinct buttons that do the same thing. */
+      body.has-rolled #btnRoll {
+        display: none;
       }
       @keyframes rollPulse {
         0%,
@@ -341,14 +355,17 @@
     <header>
       <h1>Filament</h1>
       <span class="subtitle">Play</span>
-      <a href="https://unrealfilament.art" class="galleryLink"
-        >View the edition →</a
-      >
+      <nav class="playPageNav">
+        <a href="/edition/">edition</a>
+        <a href="/play/" class="active">play</a>
+        <a href="/cosmos.html">cosmos</a>
+        <a href="/about.html">about</a>
+      </nav>
     </header>
 
     <main>
       <div id="pairBanner" hidden>
-        <strong>Rolling Twin for Pair #—.</strong> Lock when you're happy.
+        <strong>Rolling Twin for Pair #?.</strong> Lock when you're happy.
       </div>
 
       <div id="canvasWrap">
@@ -365,9 +382,9 @@
 
       <div class="slot-machine">
         <div class="reels">
-          <div class="reel" id="reel1">—</div>
-          <div class="reel" id="reel2">—</div>
-          <div class="reel" id="reel3">—</div>
+          <div class="reel" id="reel1">·</div>
+          <div class="reel" id="reel2">·</div>
+          <div class="reel" id="reel3">·</div>
         </div>
         <button id="btnRoll">Roll</button>
       </div>
@@ -1685,11 +1702,47 @@
          ========================================================================= */
       function lockSeedForMint() {
         if (!isPairMode) return;
+        const params = new URLSearchParams(location.search);
+        const returnUrl = params.get("return");
+        const lockMessage = {
+          type: "filament:seed-locked",
+          seed: state.seed,
+          pairId: URL_PAIR,
+        };
+
+        // (a) Embedded in an iframe.
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(lockMessage, "*");
+          showToast(`Locked ${state.seed}`);
+          return;
+        }
+
+        // (b) Opened in a popup.
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage(lockMessage, "*");
+          showToast(
+            `Locked ${state.seed} — switch back to checkout to mint`,
+          );
+          return;
+        }
+
+        // (b) Direct return URL via ?return=... for same-tab redirects.
+        if (returnUrl) {
+          try {
+            const u = new URL(returnUrl, location.origin);
+            u.searchParams.set("seed", state.seed);
+            u.searchParams.set("pair", String(URL_PAIR));
+            location.href = u.toString();
+            return;
+          } catch {
+            // fall through to clipboard stub
+          }
+        }
+
+        // (c) Production stub — gallery checkout target.
         const target = `https://unrealfilament.art/checkout?seed=${encodeURIComponent(
           state.seed,
         )}&pair=${URL_PAIR}`;
-        // Stub: show the would-be redirect target. When the gallery is live,
-        // replace this with: location.href = target;
         navigator.clipboard?.writeText(target).catch(() => {});
         showToast(
           `Locked seed for Pair #${URL_PAIR} — checkout link copied (stub)`,

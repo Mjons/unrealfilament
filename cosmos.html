@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cosmos · Filament</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <meta
+      name="description"
+      content="Filament's sibling: Giverny Phos. A continuous render of galaxy formation. Same cosmology, two surfaces."
+    />
+    <meta name="theme-color" content="#0e0d0a" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Cosmos · Filament" />
+    <meta
+      property="og:description"
+      content="Filament's sibling: Giverny Phos. Same cosmology, two surfaces."
+    />
+    <meta
+      property="og:image"
+      content="https://unrealfilament.art/assets/og.jpg"
+    />
+    <meta property="og:url" content="https://unrealfilament.art/cosmos.html" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@UnrealFilament" />
+
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="stylesheet" href="site.css" />
+
+    <style>
+      .cosmos-hero {
+        padding-top: 56px;
+        padding-bottom: 24px;
+      }
+      .cosmos-lede {
+        max-width: 620px;
+        font-size: 17px;
+        line-height: 1.55;
+        color: var(--fg);
+        margin: 0 0 0;
+      }
+      .cosmos-frame-wrap {
+        width: 100%;
+        max-width: 1080px;
+        margin: 0 auto 16px;
+        background: #050507;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+      }
+      .cosmos-frame-wrap iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+      }
+      .cosmos-frame-caption {
+        max-width: 1080px;
+        margin: 0 auto 56px;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.6;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 6px 14px;
+      }
+      .cosmos-frame-caption a {
+        color: var(--fg);
+        border-bottom: 1px solid var(--line);
+        text-decoration: none;
+      }
+      .cosmos-frame-caption a:hover {
+        border-bottom-color: var(--fg);
+      }
+      .cosmos-frame-caption .caption-label {
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      @media (max-width: 720px) {
+        .cosmos-frame-wrap {
+          aspect-ratio: 4 / 3;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a href="/" class="site-brand">Filament</a>
+        <nav class="site-nav">
+          <a href="/edition/">edition</a>
+          <a href="/play/">play</a>
+          <a href="/cosmos.html" class="active">cosmos</a>
+          <a href="/about.html">about</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="cosmos-hero">
+        <div class="section-narrow">
+          <div class="section-eyebrow">Cosmos</div>
+          <h1>The sibling.</h1>
+          <p class="cosmos-lede">
+            Filament is one piece of a longer thread. Its sibling, Giverny
+            Phos, renders galaxy formation continuously and is broadcast on
+            Twitch. Filament is what condensed at one junction. Phos is
+            what's still flowing through the others.
+          </p>
+        </div>
+      </section>
+
+      <section class="tight">
+        <div class="cosmos-frame-wrap">
+          <iframe
+            src="https://mjons.github.io/givernyphos/"
+            title="Giverny Phos — interactive galaxy formation"
+            loading="lazy"
+            allow="fullscreen; autoplay"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+        <div class="cosmos-frame-caption">
+          <span class="caption-label">Phos</span>
+          <span>Interactive. Drag, scroll, let it run.</span>
+          <span>·</span>
+          <a href="https://mjons.github.io/givernyphos/" target="_blank" rel="noopener"
+            >Open in its own window</a
+          >
+          <span>·</span>
+          <a href="https://www.twitch.tv/givernyphos" target="_blank" rel="noopener"
+            >Watch the broadcast</a
+          >
+        </div>
+      </section>
+
+      <section class="cta-stripe">
+        <div class="section-narrow">
+          <h3>Back to the frozen instant.</h3>
+          <p>
+            Filament is a 250-pair flow-field edition by
+            <a href="https://x.com/unrealape">@unrealape</a>. Two artworks per
+            mint, delivered together.
+          </p>
+          <a class="btn btn-primary" href="/edition/">View the edition →</a>
+          <a class="btn btn-secondary" href="/about.html">Read about Filament</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-links">
+        <a href="/edition/">edition</a>
+        <a href="/play/">play</a>
+        <a href="/cosmos.html">cosmos</a>
+        <a href="/about.html">about</a>
+        <a href="https://x.com/UnrealFilament">@UnrealFilament</a>
+        <a href="https://x.com/unrealape">@unrealape</a>
+      </div>
+      <div class="footer-fineprint">
+        Made by @unrealape · in the flow-field tradition.
+      </div>
+    </footer>
+  </body>
+</html>

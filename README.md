@@ -1,4 +1,4 @@
-# Filament — site
+# Filament site
 
 The public website for Filament. Deployed to
 [unrealfilament.art](https://unrealfilament.art) via Vercel.
@@ -22,7 +22,7 @@ npx http-server -p 8080 -c-1
 ```
 
 Then open <http://localhost:8080/>. The `play.` subdomain rewrite only
-applies on Vercel — locally, hit `/play/` directly.
+applies on Vercel; locally, hit `/play/` directly.
 
 ## Deploy
 
