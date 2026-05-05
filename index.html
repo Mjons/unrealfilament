@@ -58,7 +58,18 @@
           <img src="assets/hero.webp" alt="Filament edition piece #001" />
         </div>
         <div class="hero-content">
-          <div class="hero-eyebrow">A 250-pair edition · coming soon</div>
+          <div class="hero-eyebrow">
+            <span data-mint-state-only="pre-launch"
+              >A 250-pair edition · Friday May 8 · 11am EST</span
+            >
+            <span data-mint-state-only="live"
+              >A 250-pair edition · mint open ·
+              <span data-mint-counter>—</span></span
+            >
+            <span data-mint-state-only="sold-out"
+              >A 250-pair edition · sold out · 250 / 250</span
+            >
+          </div>
           <h1>Filament</h1>
           <p class="hero-tagline">
             A flow-field painter. In the flow-field tradition.
@@ -69,6 +80,23 @@
           </div>
         </div>
         <div class="hero-meta">#001 · morandi · medium · mixed-style</div>
+      </section>
+
+      <section>
+        <div class="section-narrow">
+          <div class="section-eyebrow">The name</div>
+          <h2>What connects galaxies.</h2>
+          <p>
+            A filament is the largest structure in the universe. A thread of
+            dark matter and gas running across hundreds of millions of
+            light-years. The threads came first; matter condensed at the
+            junctions. The collection is named for that.
+          </p>
+          <p>
+            Each piece is a junction. The seed is the gravity. The render is
+            what condenses.
+          </p>
+        </div>
       </section>
 
       <section>
@@ -319,8 +347,8 @@
             </div>
           </div>
           <p>
-            The Edition is the one I picked. The Twin is yours. Same pair number on both.
-            The halves stay linked on chain.
+            The Edition is the one I picked. The Twin is yours. Same pair
+            number on both. Two junctions on one thread, linked on chain.
           </p>
         </div>
       </section>
@@ -338,7 +366,7 @@
             artist's half.
           </p>
           <p>
-            The rolling lives where it belongs — in your Twin. The slot
+            The rolling lives in your Twin, where it belongs. The slot
             machine picks the seed, the algorithm renders it, and you reroll
             as many times as you want until it's right. Curation where the
             artist's hand is. Participation where yours is.
@@ -361,15 +389,40 @@
         </div>
       </section>
 
-      <section class="tight">
+      <section class="tight" data-mint-state-only="pre-launch">
         <div class="section-narrow" style="text-align: center">
           <div class="section-eyebrow">Pre-launch</div>
-          <h2>Edition opens soon.</h2>
+          <h2>Mint opens Friday May 8 · 11am EST.</h2>
           <p style="margin: 0 auto">
-            We're locking down mint infrastructure now. Follow
+            $90 per pair, flat across the 250-piece edition. Follow
             <a href="https://x.com/UnrealFilament">@UnrealFilament</a> or
-            <a href="https://x.com/unrealape">@unrealape</a> for the launch
-            date.
+            <a href="https://x.com/unrealape">@unrealape</a> for the
+            go-live ping.
+          </p>
+        </div>
+      </section>
+
+      <section class="tight" data-mint-state-only="live">
+        <div class="section-narrow" style="text-align: center">
+          <div class="section-eyebrow">Mint open</div>
+          <h2><span data-mint-counter>—</span> minted.</h2>
+          <p style="margin: 0 auto">
+            $90 per pair, flat across the edition. Pick a piece in the
+            gallery to mint your pair.
+          </p>
+          <a class="btn btn-primary" href="/edition/" style="margin-top: 18px"
+            >View the edition →</a
+          >
+        </div>
+      </section>
+
+      <section class="tight" data-mint-state-only="sold-out">
+        <div class="section-narrow" style="text-align: center">
+          <div class="section-eyebrow">Edition closed</div>
+          <h2>250 / 250 minted.</h2>
+          <p style="margin: 0 auto">
+            Filament Play stays open at
+            <a href="/play/">filament.art/play</a>.
           </p>
         </div>
       </section>
@@ -388,5 +441,9 @@
         Made by @unrealape · in the flow-field tradition.
       </div>
     </footer>
+
+    <script src="/assets/filament-config.js"></script>
+    <script src="/assets/filament-abi.js"></script>
+    <script src="/assets/mint-state.js"></script>
   </body>
 </html>

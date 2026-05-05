@@ -3840,9 +3840,18 @@
         rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
         contractAddress: "0x7d6376C8bDC19D46084375b66360220f55EdCa1f",
         explorerUrl: "https://sepolia.etherscan.io",
-        // The mint flow lives on the mint-backend during Sepolia testing.
-        // Production gallery + checkout will share the same origin.
-        mintCheckoutUrl: "http://localhost:8081/?pair=",
+        // Mint flow served by the home-hosted mint-backend, exposed via
+        // Cloudflare Tunnel at mint.unrealfilament.art. Same origin in both
+        // sepolia and mainnet modes — backend's CHAIN_NAME env determines
+        // which network the buyer transacts against.
+        mintCheckoutUrl: "https://mint.unrealfilament.art/?pair=",
+      };
+
+      // Launch date — shown on the modal CTA when in pre-launch state.
+      // Update this when launch slips/firms up; static text is fine for v1.
+      const LAUNCH_COPY = {
+        date: "Friday May 8",
+        time: "11am EST",
       };
 
       const FILAMENT_ABI = [
@@ -3963,12 +3972,26 @@
         const minted = card?.dataset.minted === "1";
         const owner = card?.dataset.owner;
         const twinSeed = card?.dataset.twinSeed;
+        const mintState = document.body.dataset.mintState || "pre-launch";
         if (minted && owner) {
           ctaContainer.innerHTML = `
             <div class="modal-cta">
               <div class="status minted">minted</div>
               <div class="trait"><span class="k">collector</span><span class="v"><a href="${CHAIN_CONFIG.explorerUrl}/address/${owner}" target="_blank" rel="noopener">${shortAddr(owner)} ↗</a></span></div>
               ${twinSeed ? `<div class="trait"><span class="k">twin seed</span><span class="v">${twinSeed}</span></div>` : ""}
+            </div>
+          `;
+        } else if (mintState === "pre-launch") {
+          ctaContainer.innerHTML = `
+            <div class="modal-cta">
+              <div class="status available">available</div>
+              <div style="margin-top: 10px; padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 6px; text-align: center;">
+                <div style="font-size: 13px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em;">Mint opens</div>
+                <div style="font-size: 18px; margin-top: 4px;">${LAUNCH_COPY.date} · ${LAUNCH_COPY.time}</div>
+              </div>
+              <div style="margin-top: 12px; font-size: 13px; opacity: 0.6;">
+                Follow <a href="https://x.com/UnrealFilament" target="_blank" rel="noopener">@UnrealFilament</a> for the go-live ping.
+              </div>
             </div>
           `;
         } else {
