@@ -277,7 +277,12 @@
       }
       .modal-img-wrap {
         max-width: 95vw;
-        max-height: calc(100vh - 140px);
+        /* Reserve ~300px for the modal-side traits row, mint-state CTA
+           panel, controls bar, and the flex gaps between them. Updated
+           from 140px when the AVAILABLE / MINT-OPENS CTA box was added —
+           the older value didn't account for that block and the CTA
+           was getting clipped at the bottom of the viewport. */
+        max-height: calc(100vh - 300px);
         flex: 0 1 auto;
         min-height: 0;
         overflow: hidden;
@@ -285,11 +290,16 @@
       }
       .modal-img-wrap img {
         max-width: 95vw;
-        max-height: calc(100vh - 140px);
+        max-height: calc(100vh - 300px);
         width: auto;
         height: auto;
         display: block;
         background: #111;
+        /* 1px frame so the cream artwork doesn't bleed into the dark
+           modal background — gives the image a visible boundary on
+           all four sides instead of the previous flush-cut look. */
+        border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
         user-select: none;
         -webkit-user-drag: none;
       }
@@ -389,7 +399,9 @@
           padding: 16px 14px 10px;
         }
         .modal-img-wrap img {
-          max-height: calc(100vh - 180px);
+          /* Mobile reservation also bumped from 180px to account for the
+             AVAILABLE / MINT-OPENS CTA panel below the image. */
+          max-height: calc(100vh - 280px);
         }
       }
       /* Site-wide nav prefixed with .fil- to avoid colliding with the
