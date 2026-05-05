@@ -21,7 +21,9 @@ window.FilamentConfig = {
   sepolia: {
     chainId: 11155111,
     chainName: "sepolia",
-    rpcUrl: "https://eth-sepolia.public.blastapi.io",
+    // BlastAPI's public Sepolia endpoint blocks browser CORS — use the
+    // canonical ethereum.org Sepolia RPC instead, which permits CORS.
+    rpcUrl: "https://rpc.sepolia.org",
     explorerUrl: "https://sepolia.etherscan.io",
     contractAddress: "0x7d6376C8bDC19D46084375b66360220f55EdCa1f",
     // Same tunnel URLs as mainnet — the home-hosted backend serves whichever
