@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Filament — admin</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#0e0d0a" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+
+    <style>
+      :root {
+        --bg: #0e0d0a;
+        --fg: #f5e8c8;
+        --muted: #888076;
+        --line: #2a2a26;
+        --accent: #b38b2a;
+        --ok: #6ea758;
+        --warn: #b89438;
+        --err: #b85e3a;
+        --surface: #18171a;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: "Inter", system-ui, sans-serif;
+        font-feature-settings: "ss01", "tnum";
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: var(--fg);
+        text-decoration: none;
+        border-bottom: 1px solid var(--line);
+      }
+      a:hover {
+        border-bottom-color: var(--fg);
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 32px 20px 80px;
+      }
+      header.page-head {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 32px;
+      }
+      header.page-head h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      header.page-head .subtitle {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      header.page-head .net-badge {
+        margin-left: auto;
+        padding: 3px 10px;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+      }
+      header.page-head .net-badge.sepolia {
+        color: var(--warn);
+        border-color: rgba(184, 148, 56, 0.35);
+      }
+
+      section.card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 18px 20px;
+        margin-bottom: 16px;
+      }
+      section.card h2 {
+        margin: 0 0 14px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* wallet card */
+      .wallet-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .wallet-row code {
+        font-size: 13px;
+        color: var(--fg);
+        background: rgba(0, 0, 0, 0.3);
+        padding: 4px 8px;
+        border-radius: 3px;
+        border: 1px solid var(--line);
+      }
+      .wallet-row .ownership {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .wallet-row .ownership.is-owner {
+        color: var(--ok);
+      }
+      .wallet-row .ownership.not-owner {
+        color: var(--err);
+      }
+
+      /* checklist */
+      ul.checklist {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      ul.checklist li {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+        align-items: baseline;
+      }
+      ul.checklist li:last-child {
+        border-bottom: none;
+      }
+      .check-icon {
+        font-size: 16px;
+        line-height: 1;
+        text-align: center;
+      }
+      .check-icon.ok {
+        color: var(--ok);
+      }
+      .check-icon.warn {
+        color: var(--warn);
+      }
+      .check-icon.err {
+        color: var(--err);
+      }
+      .check-icon.pending {
+        color: var(--muted);
+      }
+      .check-label {
+        font-size: 14px;
+      }
+      .check-label .step {
+        font-size: 11px;
+        color: var(--muted);
+        margin-right: 6px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .check-value {
+        font-size: 12px;
+        color: var(--muted);
+        font-feature-settings: "tnum";
+        text-align: right;
+      }
+      .check-value a {
+        color: var(--fg);
+      }
+
+      /* go-live */
+      .go-live-state {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 16px;
+      }
+      .go-live-state strong {
+        color: var(--fg);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .go-live-state strong.live {
+        color: var(--ok);
+      }
+      .go-live-state strong.paused {
+        color: var(--warn);
+      }
+      .go-live-state strong.sold-out {
+        color: var(--accent);
+      }
+      button.action {
+        background: var(--accent);
+        color: var(--bg);
+        border: none;
+        border-radius: 6px;
+        padding: 12px 22px;
+        font-size: 14px;
+        font-weight: 700;
+        font-family: inherit;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transition: opacity 100ms;
+      }
+      button.action.danger {
+        background: var(--err);
+        color: var(--fg);
+      }
+      button.action.secondary {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--fg);
+      }
+      button.action:hover:not(:disabled) {
+        opacity: 0.9;
+      }
+      button.action:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .help {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .last-toggled {
+        margin-top: 16px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      /* dry-run banner */
+      .dry-run-banner {
+        background: rgba(184, 148, 56, 0.12);
+        border: 1px solid rgba(184, 148, 56, 0.35);
+        color: var(--warn);
+        padding: 10px 14px;
+        border-radius: 6px;
+        font-size: 13px;
+        margin-bottom: 16px;
+      }
+      .dry-run-banner a {
+        color: var(--warn);
+        border-bottom-color: rgba(184, 148, 56, 0.35);
+      }
+
+      /* toast */
+      #toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(245, 232, 200, 0.95);
+        color: #18171a;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-size: 13px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 220ms;
+        z-index: 1000;
+        max-width: 90vw;
+      }
+      #toast.show {
+        opacity: 1;
+      }
+
+      .err-line {
+        color: var(--err);
+        font-size: 12px;
+        margin-top: 8px;
+      }
+    </style>
+
+    <script src="/assets/filament-config.js"></script>
+    <script src="/assets/filament-abi.js"></script>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header class="page-head">
+        <h1>Filament</h1>
+        <span class="subtitle">admin</span>
+        <span class="net-badge" id="netBadge">network</span>
+      </header>
+
+      <div
+        class="dry-run-banner"
+        id="dryRunBanner"
+        hidden
+      >
+        Dry-run mode against Sepolia. No mainnet state will change. Switch to
+        <a href="/admin/">mainnet</a> when you're ready to launch.
+      </div>
+
+      <section class="card">
+        <h2>Wallet</h2>
+        <div class="wallet-row">
+          <button class="action secondary" id="btnConnect">
+            Connect wallet
+          </button>
+          <code id="walletAddr" hidden>—</code>
+          <span class="ownership" id="walletOwnership"></span>
+        </div>
+        <div class="err-line" id="walletErr" hidden></div>
+      </section>
+
+      <section class="card">
+        <h2>Checklist</h2>
+        <ul class="checklist" id="checklist">
+          <li data-row="contract">
+            <span class="check-icon pending" data-icon>·</span>
+            <span class="check-label"
+              ><span class="step">M5b</span>Contract deployed</span
+            >
+            <span class="check-value" data-value>checking…</span>
+          </li>
+          <li data-row="manifest">
+            <span class="check-icon pending" data-icon>·</span>
+            <span class="check-label"
+              ><span class="step">M5b</span>Edition manifest populated</span
+            >
+            <span class="check-value" data-value>checking…</span>
+          </li>
+          <li data-row="generator">
+            <span class="check-icon pending" data-icon>·</span>
+            <span class="check-label"
+              ><span class="step">M5b</span>Generator version released</span
+            >
+            <span class="check-value" data-value>checking…</span>
+          </li>
+          <li data-row="render">
+            <span class="check-icon pending" data-icon>·</span>
+            <span class="check-label"
+              ><span class="step">M5a</span>Render service reachable</span
+            >
+            <span class="check-value" data-value>checking…</span>
+          </li>
+          <li data-row="backend">
+            <span class="check-icon pending" data-icon>·</span>
+            <span class="check-label"
+              ><span class="step">M5a</span>Mint backend reachable</span
+            >
+            <span class="check-value" data-value>checking…</span>
+          </li>
+          <li data-row="beta">
+            <span class="check-icon pending" data-icon>·</span>
+            <span class="check-label"
+              ><span class="step">M7</span>Private beta mints</span
+            >
+            <span class="check-value" data-value>checking…</span>
+          </li>
+          <li data-row="public">
+            <span class="check-icon pending" data-icon>·</span>
+            <span class="check-label"
+              ><span class="step">M8</span>Public mint</span
+            >
+            <span class="check-value" data-value>checking…</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Go live</h2>
+        <div class="go-live-state">
+          Status: <strong id="liveState" class="paused">UNKNOWN</strong>
+        </div>
+        <div>
+          <button class="action" id="btnGoLive" disabled>
+            Take Filament live
+          </button>
+          <button class="action danger" id="btnPause" disabled hidden>
+            Pause mint
+          </button>
+        </div>
+        <div class="help" id="goLiveHelp">
+          Connect the owner wallet to enable. The button only enables when
+          every blocking checklist row is green.
+        </div>
+        <div class="last-toggled" id="lastToggled">
+          Last toggled: never on this device.
+        </div>
+        <div class="err-line" id="goLiveErr" hidden></div>
+      </section>
+    </div>
+
+    <div id="toast"></div>
+
+    <script type="module">
+      import {
+        createPublicClient,
+        createWalletClient,
+        custom,
+        http,
+        getAddress,
+      } from "https://esm.sh/viem@2.21.55";
+      import {
+        mainnet as mainnetChain,
+        sepolia as sepoliaChain,
+      } from "https://esm.sh/viem@2.21.55/chains";
+
+      // ────────────────────────────────────────────────────────────
+      // Config + globals
+      // ────────────────────────────────────────────────────────────
+
+      const network = window.FilamentNetwork; // 'mainnet' | 'sepolia'
+      const cfg = window.FilamentActiveCfg();
+      const abi = window.FilamentAbi;
+      const TOTAL_PAIRS = window.FilamentTotalPairs;
+      const ZERO = "0x0000000000000000000000000000000000000000";
+      const BETA_THRESHOLD = 5; // pairs minted to mark M7 green
+      const isContractSet =
+        cfg.contractAddress && cfg.contractAddress.toLowerCase() !== ZERO;
+
+      const viemChain = network === "mainnet" ? mainnetChain : sepoliaChain;
+
+      const publicClient = createPublicClient({
+        chain: viemChain,
+        transport: http(cfg.rpcUrl),
+      });
+      let walletClient = null;
+      let connectedAddr = null;
+      let contractOwner = null;
+
+      // ────────────────────────────────────────────────────────────
+      // DOM helpers
+      // ────────────────────────────────────────────────────────────
+
+      const $ = (sel) => document.querySelector(sel);
+      const toast = (msg) => {
+        const el = $("#toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => el.classList.remove("show"), 2400);
+      };
+
+      function setRow(id, icon, value, valueIsHtml = false) {
+        const li = document.querySelector(`li[data-row="${id}"]`);
+        if (!li) return;
+        const iconEl = li.querySelector("[data-icon]");
+        const valEl = li.querySelector("[data-value]");
+        iconEl.className = `check-icon ${icon}`;
+        iconEl.textContent =
+          icon === "ok"
+            ? "✓"
+            : icon === "warn"
+              ? "!"
+              : icon === "err"
+                ? "×"
+                : "·";
+        if (valueIsHtml) valEl.innerHTML = value;
+        else valEl.textContent = value;
+      }
+
+      // Network badge
+      (() => {
+        const badge = $("#netBadge");
+        badge.textContent = network;
+        if (network === "sepolia") {
+          badge.classList.add("sepolia");
+          $("#dryRunBanner").hidden = false;
+        }
+      })();
+
+      // ────────────────────────────────────────────────────────────
+      // Checklist readers
+      // ────────────────────────────────────────────────────────────
+
+      async function checkContractDeployed() {
+        if (!isContractSet) {
+          setRow(
+            "contract",
+            "err",
+            "address not set in filament-config.js",
+          );
+          return false;
+        }
+        const code = await publicClient.getBytecode({
+          address: cfg.contractAddress,
+        });
+        if (!code || code === "0x") {
+          setRow("contract", "err", "no code at address");
+          return false;
+        }
+        const link = `${cfg.explorerUrl}/address/${cfg.contractAddress}`;
+        const short = `${cfg.contractAddress.slice(0, 6)}…${cfg.contractAddress.slice(-4)}`;
+        setRow(
+          "contract",
+          "ok",
+          `<a href="${link}" target="_blank" rel="noopener">${short}</a>`,
+          true,
+        );
+        return true;
+      }
+
+      async function checkManifest() {
+        // Cheap spot-check: read entries 1, 125, 250. If all have a non-empty
+        // imageCid, treat manifest as populated. Cheaper than scanning logs.
+        try {
+          const reads = await Promise.all(
+            [1, 125, TOTAL_PAIRS].map((id) =>
+              publicClient.readContract({
+                address: cfg.contractAddress,
+                abi,
+                functionName: "editionManifest",
+                args: [id],
+              }),
+            ),
+          );
+          const populatedCount = reads.filter(
+            (r) => r && r[1] && r[1].length > 0,
+          ).length;
+          if (populatedCount === 3) {
+            setRow("manifest", "ok", "spot-check 3/3 set");
+            return true;
+          } else if (populatedCount > 0) {
+            setRow("manifest", "warn", `partial: ${populatedCount}/3 set`);
+          } else {
+            setRow("manifest", "err", "0/3 spot-check entries set");
+          }
+          return false;
+        } catch (e) {
+          setRow("manifest", "err", "read failed");
+          return false;
+        }
+      }
+
+      async function checkGenerator() {
+        try {
+          const cid = await publicClient.readContract({
+            address: cfg.contractAddress,
+            abi,
+            functionName: "currentGeneratorCid",
+          });
+          if (cid && cid.length > 0) {
+            const short = cid.length > 12 ? `${cid.slice(0, 8)}…` : cid;
+            setRow("generator", "ok", short);
+            return true;
+          }
+          setRow("generator", "err", "not released");
+          return false;
+        } catch {
+          setRow("generator", "err", "read failed");
+          return false;
+        }
+      }
+
+      async function checkServiceReachable(rowId, url) {
+        if (!url) {
+          setRow(rowId, "err", "URL not set");
+          return false;
+        }
+        try {
+          const res = await fetch(`${url.replace(/\/$/, "")}/health`, {
+            method: "GET",
+            mode: "cors",
+          });
+          if (res.ok) {
+            setRow(rowId, "ok", new URL(url).hostname);
+            return true;
+          }
+          setRow(rowId, "warn", `HTTP ${res.status}`);
+          return false;
+        } catch {
+          setRow(rowId, "err", "unreachable");
+          return false;
+        }
+      }
+
+      async function checkBeta(pairsMinted) {
+        if (pairsMinted >= BETA_THRESHOLD) {
+          setRow("beta", "ok", `${pairsMinted} / ${BETA_THRESHOLD} done`);
+          return true;
+        }
+        setRow(
+          "beta",
+          pairsMinted > 0 ? "warn" : "pending",
+          `${pairsMinted} / ${BETA_THRESHOLD}`,
+        );
+        return false;
+      }
+
+      async function checkPublicMint(paused, pairsMinted) {
+        if (pairsMinted >= TOTAL_PAIRS) {
+          setRow("public", "ok", "sold out");
+          return "sold-out";
+        }
+        if (paused) {
+          setRow("public", "warn", "paused");
+          return "paused";
+        }
+        setRow("public", "ok", `${pairsMinted} / ${TOTAL_PAIRS} minted`);
+        return "live";
+      }
+
+      // ────────────────────────────────────────────────────────────
+      // State refresh
+      // ────────────────────────────────────────────────────────────
+
+      async function refresh() {
+        const deployed = await checkContractDeployed();
+
+        if (!deployed) {
+          // Skip the rest of the contract-dependent rows.
+          ["manifest", "generator", "beta", "public"].forEach((r) =>
+            setRow(r, "pending", "—"),
+          );
+          updateGoLive(null, null);
+        } else {
+          // Read state in parallel.
+          let paused, pairsMinted;
+          try {
+            [paused, pairsMinted] = await Promise.all([
+              publicClient.readContract({
+                address: cfg.contractAddress,
+                abi,
+                functionName: "paused",
+              }),
+              publicClient.readContract({
+                address: cfg.contractAddress,
+                abi,
+                functionName: "pairsMinted",
+              }),
+            ]);
+          } catch (e) {
+            console.error(e);
+            paused = null;
+            pairsMinted = 0;
+          }
+          const minted = Number(pairsMinted ?? 0);
+
+          await Promise.all([
+            checkManifest(),
+            checkGenerator(),
+            checkBeta(minted),
+            checkPublicMint(paused, minted),
+          ]);
+
+          // Cache contract owner for the wallet ownership check.
+          try {
+            contractOwner = await publicClient.readContract({
+              address: cfg.contractAddress,
+              abi,
+              functionName: "owner",
+            });
+          } catch {}
+
+          updateGoLive(paused, minted);
+          if (connectedAddr) renderOwnership();
+        }
+
+        await Promise.all([
+          checkServiceReachable("render", cfg.renderServiceUrl),
+          checkServiceReachable("backend", cfg.mintBackendUrl),
+        ]);
+      }
+
+      function updateGoLive(paused, minted) {
+        const stateEl = $("#liveState");
+        const goBtn = $("#btnGoLive");
+        const pauseBtn = $("#btnPause");
+        const help = $("#goLiveHelp");
+
+        if (paused === null) {
+          stateEl.textContent = "UNKNOWN";
+          stateEl.className = "paused";
+          goBtn.disabled = true;
+          pauseBtn.hidden = true;
+          help.textContent =
+            "Contract not yet deployed (or unreachable). Deploy mainnet + populate manifest before this is actionable.";
+          return;
+        }
+
+        if (minted >= TOTAL_PAIRS) {
+          stateEl.textContent = "SOLD OUT";
+          stateEl.className = "sold-out";
+          goBtn.disabled = true;
+          goBtn.hidden = true;
+          pauseBtn.hidden = true;
+          help.textContent = "Edition fully minted. Nothing to do here.";
+          return;
+        }
+
+        if (paused) {
+          stateEl.textContent = "PAUSED";
+          stateEl.className = "paused";
+          goBtn.hidden = false;
+          pauseBtn.hidden = true;
+        } else {
+          stateEl.textContent = "LIVE";
+          stateEl.className = "live";
+          goBtn.hidden = true;
+          pauseBtn.hidden = false;
+        }
+
+        // Enable only when wallet is connected as owner AND every gate is green.
+        const allGreen = [
+          "contract",
+          "manifest",
+          "generator",
+          "render",
+          "backend",
+        ].every(
+          (id) =>
+            document
+              .querySelector(`li[data-row="${id}"] [data-icon]`)
+              .classList.contains("ok"),
+        );
+        const isOwner =
+          connectedAddr &&
+          contractOwner &&
+          connectedAddr.toLowerCase() === contractOwner.toLowerCase();
+
+        goBtn.disabled = !(allGreen && isOwner);
+        pauseBtn.disabled = !isOwner;
+
+        if (!connectedAddr) {
+          help.textContent = "Connect the owner wallet to enable.";
+        } else if (!isOwner) {
+          help.textContent =
+            "Connected wallet is not the contract owner. Switch wallets.";
+        } else if (!allGreen) {
+          help.textContent =
+            "One or more gating checklist rows is not green. Resolve those first.";
+        } else if (paused) {
+          help.textContent =
+            "All gates green. Click to unpause the contract — the public site flips to LIVE within ~60s of the cache TTL.";
+        } else {
+          help.textContent =
+            "Mint is live. Pause if you need to halt new mints (use sparingly).";
+        }
+      }
+
+      function renderOwnership() {
+        const el = $("#walletOwnership");
+        if (!contractOwner) {
+          el.textContent = "(contract owner unknown)";
+          el.className = "ownership";
+          return;
+        }
+        const ownerShort = `${contractOwner.slice(0, 6)}…${contractOwner.slice(-4)}`;
+        if (connectedAddr.toLowerCase() === contractOwner.toLowerCase()) {
+          el.textContent = "✓ contract owner";
+          el.className = "ownership is-owner";
+        } else {
+          el.textContent = `not owner (owner: ${ownerShort})`;
+          el.className = "ownership not-owner";
+        }
+      }
+
+      // ────────────────────────────────────────────────────────────
+      // Wallet connect
+      // ────────────────────────────────────────────────────────────
+
+      async function connect() {
+        const eth = window.ethereum;
+        if (!eth) {
+          $("#walletErr").hidden = false;
+          $("#walletErr").textContent =
+            "No injected wallet found. Install MetaMask or similar.";
+          return;
+        }
+        try {
+          const [addr] = await eth.request({ method: "eth_requestAccounts" });
+          if (!addr) return;
+          connectedAddr = getAddress(addr);
+          walletClient = createWalletClient({
+            chain: viemChain,
+            transport: custom(eth),
+            account: connectedAddr,
+          });
+
+          // Check we're on the right chain.
+          const wantChainHex = "0x" + viemChain.id.toString(16);
+          const currentChain = await eth.request({ method: "eth_chainId" });
+          if (currentChain !== wantChainHex) {
+            try {
+              await eth.request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: wantChainHex }],
+              });
+            } catch (e) {
+              $("#walletErr").hidden = false;
+              $("#walletErr").textContent = `Switch wallet to ${viemChain.name} (chain id ${viemChain.id}).`;
+            }
+          }
+
+          const short = `${connectedAddr.slice(0, 6)}…${connectedAddr.slice(-4)}`;
+          $("#walletAddr").hidden = false;
+          $("#walletAddr").textContent = short;
+          $("#btnConnect").textContent = "Reconnect";
+          $("#walletErr").hidden = true;
+          renderOwnership();
+          // Refresh in case it was waiting on owner-check.
+          refresh();
+        } catch (err) {
+          $("#walletErr").hidden = false;
+          $("#walletErr").textContent =
+            err?.shortMessage || err?.message || "connect failed";
+        }
+      }
+
+      // ────────────────────────────────────────────────────────────
+      // Pause / unpause
+      // ────────────────────────────────────────────────────────────
+
+      async function callOwnerFn(fnName, label) {
+        if (!walletClient) return;
+        const errEl = $("#goLiveErr");
+        errEl.hidden = true;
+        try {
+          toast(`${label}: confirming in wallet…`);
+          const hash = await walletClient.writeContract({
+            address: cfg.contractAddress,
+            abi,
+            functionName: fnName,
+            account: connectedAddr,
+            chain: viemChain,
+          });
+          toast(`${label}: tx sent — waiting for confirmation…`);
+          await publicClient.waitForTransactionReceipt({ hash });
+          toast(`${label}: confirmed.`);
+          // Persist last-toggled note.
+          try {
+            const nowStr = new Date().toLocaleString();
+            localStorage.setItem(
+              "filament-admin-last-toggle",
+              JSON.stringify({ fn: fnName, at: nowStr }),
+            );
+          } catch {}
+          renderLastToggled();
+          await refresh();
+        } catch (err) {
+          errEl.hidden = false;
+          errEl.textContent =
+            err?.shortMessage || err?.message || `${label} failed`;
+        }
+      }
+
+      function renderLastToggled() {
+        try {
+          const raw = localStorage.getItem("filament-admin-last-toggle");
+          if (!raw) return;
+          const { fn, at } = JSON.parse(raw);
+          $("#lastToggled").textContent = `Last toggled: ${fn}() on ${at}`;
+        } catch {}
+      }
+
+      // ────────────────────────────────────────────────────────────
+      // Wire up + boot
+      // ────────────────────────────────────────────────────────────
+
+      $("#btnConnect").addEventListener("click", connect);
+      $("#btnGoLive").addEventListener("click", () =>
+        callOwnerFn("unpause", "Take live"),
+      );
+      $("#btnPause").addEventListener("click", () => {
+        if (
+          !confirm(
+            "Pause mint? New pairs will be blocked from minting until you unpause.",
+          )
+        )
+          return;
+        callOwnerFn("pause", "Pause");
+      });
+
+      renderLastToggled();
+      refresh();
+    </script>
+  </body>
+</html>
