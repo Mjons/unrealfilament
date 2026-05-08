@@ -589,3 +589,20 @@ section p {
     height: 160px;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Mint-state visibility. body[data-mint-state] is set by
+   /assets/mint-state.js to one of: pre-launch (default) | live |
+   sold-out. Mark elements with data-mint-state-only="<state>" to show
+   them only when that state is active. Multiple states allowed:
+   data-mint-state-only="live sold-out".
+   ───────────────────────────────────────────────────────────────────── */
+
+[data-mint-state-only] {
+  display: none !important;
+}
+body[data-mint-state="pre-launch"] [data-mint-state-only~="pre-launch"],
+body[data-mint-state="live"] [data-mint-state-only~="live"],
+body[data-mint-state="sold-out"] [data-mint-state-only~="sold-out"] {
+  display: revert !important;
+}
