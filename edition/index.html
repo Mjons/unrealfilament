@@ -149,7 +149,7 @@
         border-color: var(--accent);
       }
       main {
-        --grid-min: 180px;
+        --grid-min: 280px;
         padding: 16px 24px 60px;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(var(--grid-min), 1fr));
@@ -608,8 +608,8 @@
         <div class="ctrl-group">
           <span class="ctrl-label">Size</span>
           <button class="ctrl-btn" data-size="120">S</button>
-          <button class="ctrl-btn active" data-size="180">M</button>
-          <button class="ctrl-btn" data-size="280">L</button>
+          <button class="ctrl-btn" data-size="180">M</button>
+          <button class="ctrl-btn active" data-size="280">L</button>
           <button class="ctrl-btn" data-size="400">XL</button>
         </div>
         <div class="ctrl-group">
@@ -4066,5 +4066,13 @@
         .then(applyMintState)
         .catch((e) => console.warn("[chain] mint state fetch failed:", e));
     </script>
+
+    <!-- Sets document.body.dataset.mintState ("pre-launch" | "live" | "sold-out")
+         based on contract.paused() + pairsMinted(). The modal CTA above reads
+         this attribute to decide whether to show the "Mint this pair" button
+         or the "Mint opens..." pre-launch copy. Without these scripts the
+         modal falls through to its pre-launch default forever. -->
+    <script src="/assets/filament-config.js?v=2"></script>
+    <script src="/assets/mint-state.js?v=2"></script>
   </body>
 </html>
