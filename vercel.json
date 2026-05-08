@@ -24,11 +24,20 @@
   ],
   "headers": [
     {
-      "source": "/:path*.:ext(webp|png|jpg|jpeg|svg|woff2|css|js|ico)",
+      "source": "/:path*.:ext(webp|png|jpg|jpeg|svg|woff2|ico)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/:path*.:ext(css|js)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300, must-revalidate"
         }
       ]
     },
@@ -39,6 +48,13 @@
           "key": "Cache-Control",
           "value": "public, max-age=300, must-revalidate"
         }
+      ]
+    },
+    {
+      "source": "/admin/:path*",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store" }
       ]
     },
     {
