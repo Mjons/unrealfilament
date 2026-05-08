@@ -3884,15 +3884,13 @@
          is unreachable.
          ========================================================================= */
       const CHAIN_CONFIG = {
-        // Sepolia for now; flip to mainnet at launch.
-        chainId: 11155111,
-        rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
-        contractAddress: "0x7d6376C8bDC19D46084375b66360220f55EdCa1f",
-        explorerUrl: "https://sepolia.etherscan.io",
-        // Mint flow served by the home-hosted mint-backend, exposed via
-        // Cloudflare Tunnel at mint.unrealfilament.art. Same origin in both
-        // sepolia and mainnet modes — backend's CHAIN_NAME env determines
-        // which network the buyer transacts against.
+        // Mainnet — Filament v1 launch config (2026-05-08).
+        chainId: 1,
+        rpcUrl: "https://eth.llamarpc.com",
+        contractAddress: "0x89D14bEc7E16166bAf3bF4cEaaA141B8F42d5512",
+        explorerUrl: "https://etherscan.io",
+        // Mint flow served by Railway-hosted mint-backend at
+        // mint.unrealfilament.art. Twin pool architecture — no live render.
         mintCheckoutUrl: "https://mint.unrealfilament.art/?pair=",
       };
 
