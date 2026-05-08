@@ -14,7 +14,7 @@ window.FilamentConfig = {
     chainName: "mainnet",
     rpcUrl: "https://eth.llamarpc.com",
     explorerUrl: "https://etherscan.io",
-    contractAddress: "0x0000000000000000000000000000000000000000",
+    contractAddress: "0x89D14bEc7E16166bAf3bF4cEaaA141B8F42d5512",
     renderServiceUrl: "https://render.unrealfilament.art",
     mintBackendUrl: "https://mint.unrealfilament.art",
   },
