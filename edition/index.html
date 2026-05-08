@@ -3886,7 +3886,10 @@
       const CHAIN_CONFIG = {
         // Mainnet — Filament v1 launch config (2026-05-08).
         chainId: 1,
-        rpcUrl: "https://eth.llamarpc.com",
+        // publicnode.com — CORS-friendly, well-maintained, rarely on
+        // ad blocker blocklists (llamarpc.com gets blocked by uBlock
+        // Origin / Brave Shields for some users).
+        rpcUrl: "https://ethereum-rpc.publicnode.com",
         contractAddress: "0x89D14bEc7E16166bAf3bF4cEaaA141B8F42d5512",
         explorerUrl: "https://etherscan.io",
         // Mint flow served by Railway-hosted mint-backend at

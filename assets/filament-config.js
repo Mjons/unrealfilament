@@ -12,7 +12,9 @@ window.FilamentConfig = {
   mainnet: {
     chainId: 1,
     chainName: "mainnet",
-    rpcUrl: "https://eth.llamarpc.com",
+    // publicnode.com — CORS-friendly, well-maintained, rarely on ad
+    // blocker blocklists (llamarpc.com gets blocked by uBlock / Brave).
+    rpcUrl: "https://ethereum-rpc.publicnode.com",
     explorerUrl: "https://etherscan.io",
     contractAddress: "0x89D14bEc7E16166bAf3bF4cEaaA141B8F42d5512",
     renderServiceUrl: "https://render.unrealfilament.art",
