@@ -75,7 +75,12 @@
             A flow-field painter. In the flow-field tradition.
           </p>
           <div class="hero-ctas">
-            <a class="btn btn-primary" href="/edition/">View the edition →</a>
+            <a class="btn btn-primary" id="heroMintNowBtn" href="#"
+              >Mint Now</a
+            >
+            <a class="btn btn-secondary" href="/edition/"
+              >View the edition →</a
+            >
             <a class="btn btn-secondary" href="/play/">Try Filament Play</a>
           </div>
         </div>
@@ -445,5 +450,17 @@
     <script src="/assets/filament-config.js?v=2"></script>
     <script src="/assets/filament-abi.js?v=2"></script>
     <script src="/assets/mint-state.js?v=2"></script>
+    <script>
+      // Hero Mint Now button — resolves the active mint-backend URL from
+      // filament-config and preserves ?network=sepolia for rehearsal sessions.
+      (function () {
+        var btn = document.getElementById("heroMintNowBtn");
+        if (!btn || !window.FilamentActiveCfg) return;
+        var cfg = window.FilamentActiveCfg();
+        var net = new URLSearchParams(location.search).get("network");
+        var qs = "?quick=1" + (net ? "&network=" + encodeURIComponent(net) : "");
+        btn.href = cfg.mintBackendUrl + "/" + qs;
+      })();
+    </script>
   </body>
 </html>
