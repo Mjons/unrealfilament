@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Filament — flow-field bead chains</title>
     <style>
+      /* Public /play/ deploy — hide batch/curation tools (artist-only).
+         Canonical filament_v1.html in the outer monorepo is unchanged. */
+      .row:has(> #btnBatch),
+      label:has(#vBatchN),
+      #batchN,
+      label:has(#batchModePills),
+      #batchModePills,
+      label:has(#batchRes),
+      #batchRes,
+      label:has(#vVary),
+      #vary,
+      .group:has(#btnRunCuration) {
+        display: none !important;
+      }
+    </style>
+    <style>
       :root {
         --bg: #111;
         --panel: rgba(20, 20, 22, 0.78);
