@@ -296,11 +296,7 @@
         <span class="net-badge" id="netBadge">network</span>
       </header>
 
-      <div
-        class="dry-run-banner"
-        id="dryRunBanner"
-        hidden
-      >
+      <div class="dry-run-banner" id="dryRunBanner" hidden>
         Dry-run mode against Sepolia. No mainnet state will change. Switch to
         <a href="/admin/">mainnet</a> when you're ready to launch.
       </div>
@@ -379,8 +375,8 @@
           </button>
         </div>
         <div class="help" id="goLiveHelp">
-          Connect the owner wallet to enable. The button only enables when
-          every blocking checklist row is green.
+          Connect the owner wallet to enable. The button only enables when every
+          blocking checklist row is green.
         </div>
         <div class="last-toggled" id="lastToggled">
           Last toggled: never on this device.
@@ -474,11 +470,7 @@
 
       async function checkContractDeployed() {
         if (!isContractSet) {
-          setRow(
-            "contract",
-            "err",
-            "address not set in filament-config.js",
-          );
+          setRow("contract", "err", "address not set in filament-config.js");
           return false;
         }
         const code = await publicClient.getBytecode({
@@ -699,12 +691,7 @@
         // Enable only when wallet is connected as owner AND every gate is green.
         // (render-service was removed from gating 2026-05-07 — twin pool architecture
         // means render-service is no longer in the mint-time path.)
-        const allGreen = [
-          "contract",
-          "manifest",
-          "generator",
-          "backend",
-        ].every(
+        const allGreen = ["contract", "manifest", "generator", "backend"].every(
           (id) =>
             document
               .querySelector(`li[data-row="${id}"] [data-icon]`)
@@ -785,7 +772,8 @@
               });
             } catch (e) {
               $("#walletErr").hidden = false;
-              $("#walletErr").textContent = `Switch wallet to ${viemChain.name} (chain id ${viemChain.id}).`;
+              $("#walletErr").textContent =
+                `Switch wallet to ${viemChain.name} (chain id ${viemChain.id}).`;
             }
           }
 

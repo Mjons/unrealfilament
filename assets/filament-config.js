@@ -7,6 +7,10 @@
 //  - mainnet.contractAddress   → fill on mainnet deploy day
 //  - mainnet.renderServiceUrl  → fill when prod render service is up
 //  - mainnet.mintBackendUrl    → fill when prod mint backend is up
+//  - mainnet.openSeaUrl        → TODO(pivot): fill with the OpenSea
+//    collection URL. The Edition half is now a free mint there rather
+//    than a paid mint through mintBackendUrl; every "Mint free on
+//    OpenSea" CTA reads this value and stays disabled while it is null.
 
 window.FilamentConfig = {
   mainnet: {
@@ -19,6 +23,8 @@ window.FilamentConfig = {
     contractAddress: "0x89D14bEc7E16166bAf3bF4cEaaA141B8F42d5512",
     renderServiceUrl: "https://render.unrealfilament.art",
     mintBackendUrl: "https://mint.unrealfilament.art",
+    // TODO(pivot): set to the OpenSea collection URL before launch.
+    openSeaUrl: null,
   },
   sepolia: {
     chainId: 11155111,
@@ -35,6 +41,9 @@ window.FilamentConfig = {
     // ?network=sepolia will be useless until/unless we run a second backend.
     renderServiceUrl: "https://render.unrealfilament.art",
     mintBackendUrl: "https://mint.unrealfilament.art",
+    // Testnet rehearsal has no OpenSea equivalent; leave null so the CTA
+    // stays disabled under ?network=sepolia.
+    openSeaUrl: null,
   },
 };
 

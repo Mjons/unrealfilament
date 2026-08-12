@@ -174,6 +174,9 @@
            scroll position doesn't jitter when cards become visible. */
         content-visibility: auto;
         contain-intrinsic-size: var(--grid-min) var(--grid-min);
+        /* Query container so the meta row can shed the palette label at
+           the smallest grid size — see the @container rule below. */
+        container-type: inline-size;
       }
       .card:hover {
         border-color: var(--accent);
@@ -242,12 +245,32 @@
         gap: 6px;
       }
       .card-meta .token {
-        color: var(--fg);
+        flex: 0 0 auto;
         font-weight: 700;
       }
+      /* The name is the piece's identity, so it takes the bright ink and
+         all the slack in the row; number and palette flank it in muted. */
+      .card-meta .name {
+        flex: 1 1 auto;
+        min-width: 0;
+        color: var(--fg);
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
       .card-meta .palette {
+        flex: 0 0 auto;
         font-size: 10px;
         letter-spacing: 0.04em;
+      }
+      /* At the smallest tile size the row can't hold all three. Drop the
+         palette rather than truncate the name — palette is still on the
+         filter pills and in the modal. */
+      @container (max-width: 150px) {
+        .card-meta .palette {
+          display: none;
+        }
       }
       .card.hidden {
         display: none;
@@ -506,8 +529,12 @@
         gap: 4px;
         font-size: 12px;
       }
-      .modal-cta .trait .k { color: var(--muted); }
-      .modal-cta .trait .v { color: var(--fg); }
+      .modal-cta .trait .k {
+        color: var(--muted);
+      }
+      .modal-cta .trait .v {
+        color: var(--fg);
+      }
       .modal-cta .status {
         font-family: ui-sans-serif, "Inter", system-ui;
         font-size: 11px;
@@ -676,6 +703,12 @@
       >
     </footer>
 
+    <!-- Piece names, tokenId → [Edition half, Twin half]. Kept in its own
+         file because the token metadata generator reads the same list.
+         Must load before the inline script below, which reads
+         FILAMENT_NAMES at render time. ?v matches the sibling assets so a
+         single bump busts the whole set. -->
+    <script src="names.js?v=2"></script>
     <script>
       const EDITION = {
         edition: "Filament v1",
@@ -3628,6 +3661,13 @@
       let currentIdx = 0;
       let activeFilter = "all";
 
+      // names.js is a separate request; if it ever fails to arrive the
+      // gallery should still render, just unnamed.
+      const NAMES = typeof FILAMENT_NAMES === "undefined" ? {} : FILAMENT_NAMES;
+      const nameOf = (tokenId, half) => (NAMES[tokenId] || [])[half] || "";
+      const EDITION_HALF = 0;
+      const TWIN_HALF = 1;
+
       // Build filter pills (palette set)
       const palettes = [...new Set(EDITION.selected.map((s) => s.palette))];
       const allBtn = document.createElement("button");
@@ -3670,12 +3710,15 @@
         // Grid uses the small thumbnail when available (per
         // optimize_for_web.cjs); modal uses s.filename for native res.
         const gridSrc = s.thumbnail || s.filename;
+        const name = nameOf(s.tokenId, EDITION_HALF);
+        card.dataset.name = name;
         card.innerHTML = `
           <div class="card-img-wrap">
-            <img src="${gridSrc}" alt="#${s.tokenId} ${s.palette}" loading="lazy" decoding="async" fetchpriority="low" />
+            <img src="${gridSrc}" alt="${name} — #${s.tokenId}, ${s.palette}" loading="lazy" decoding="async" fetchpriority="low" />
           </div>
           <div class="card-meta">
             <span class="token">#${String(s.tokenId).padStart(3, "0")}</span>
+            <span class="name">${name}</span>
             <span class="palette">${s.palette}</span>
           </div>
         `;
@@ -3892,16 +3935,21 @@
         rpcUrl: "https://ethereum-rpc.publicnode.com",
         contractAddress: "0x89D14bEc7E16166bAf3bF4cEaaA141B8F42d5512",
         explorerUrl: "https://etherscan.io",
-        // Mint flow served by Railway-hosted mint-backend at
-        // mint.unrealfilament.art. Twin pool architecture — no live render.
+        // Legacy paid-mint checkout. Superseded by the OpenSea free mint
+        // below; kept only so nothing that still references it breaks.
         mintCheckoutUrl: "https://mint.unrealfilament.art/?pair=",
+        // TODO(pivot): set to the OpenSea collection URL before launch.
+        // Mirrors assets/filament-config.js — keep the two in step.
+        openSeaUrl: null,
       };
 
       // Launch date — shown on the modal CTA when in pre-launch state.
       // Update this when launch slips/firms up; static text is fine for v1.
+      // TODO(pivot): set once the OpenSea drop date is fixed. The old
+      // May 8 paid-mint date no longer applies.
       const LAUNCH_COPY = {
-        date: "Friday May 8",
-        time: "11am EST",
+        date: "Coming soon",
+        time: "free on OpenSea",
       };
 
       const FILAMENT_ABI = [
@@ -3914,7 +3962,8 @@
       let _ethers;
       async function loadEthers() {
         if (_ethers) return _ethers;
-        _ethers = await import("https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm");
+        _ethers =
+          await import("https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm");
         return _ethers;
       }
 
@@ -3933,7 +3982,9 @@
           await Promise.all(
             slice.map(async (s) => {
               try {
-                const owner = await contract.ownerOf(BigInt(s.tokenId) * 2n - 1n);
+                const owner = await contract.ownerOf(
+                  BigInt(s.tokenId) * 2n - 1n,
+                );
                 ownerByPair.set(s.tokenId, owner);
               } catch {
                 /* unminted token reverts ownerOf — leave absent */
@@ -3982,7 +4033,9 @@
       function updateAvailabilityCount() {
         const total = document.querySelectorAll(".card").length;
         const minted = document.querySelectorAll(".card.is-minted").length;
-        const btn = document.querySelector('.filter-btn[data-filter="available"]');
+        const btn = document.querySelector(
+          '.filter-btn[data-filter="available"]',
+        );
         if (btn) btn.textContent = `Available (${total - minted})`;
       }
 
@@ -4000,9 +4053,9 @@
       filters.addEventListener("click", (e) => {
         if (e.target.dataset.filter !== "available") return;
         // Visual selection state — match the existing palette filter behavior.
-        document.querySelectorAll(".filter-btn").forEach((b) =>
-          b.classList.toggle("active", b === e.target),
-        );
+        document
+          .querySelectorAll(".filter-btn")
+          .forEach((b) => b.classList.toggle("active", b === e.target));
         activeFilter = "available";
         document.querySelectorAll(".card").forEach((c) => {
           c.classList.toggle("hidden", c.classList.contains("is-minted"));
@@ -4018,7 +4071,9 @@
       openModal = function (idx) {
         _origOpenModal3(idx);
         const s = EDITION.selected[idx];
-        const card = document.querySelector(`.card[data-token-id="${s.tokenId}"]`);
+        const card = document.querySelector(
+          `.card[data-token-id="${s.tokenId}"]`,
+        );
         const minted = card?.dataset.minted === "1";
         const owner = card?.dataset.owner;
         const twinSeed = card?.dataset.twinSeed;
@@ -4045,10 +4100,19 @@
             </div>
           `;
         } else {
+          // Post-pivot the Edition half is a free mint on OpenSea, so the
+          // CTA points there instead of the old paid checkout. Until the
+          // collection URL is set the button is omitted rather than left
+          // pointing nowhere — the piece still reads as available.
+          const openSeaUrl = CHAIN_CONFIG.openSeaUrl;
           ctaContainer.innerHTML = `
             <div class="modal-cta">
-              <div class="status available">available · 0.038 ETH</div>
-              <a class="mint-btn" href="${CHAIN_CONFIG.mintCheckoutUrl}${s.tokenId}">Mint this pair →</a>
+              <div class="status available">available · free</div>
+              ${
+                openSeaUrl
+                  ? `<a class="mint-btn" href="${openSeaUrl}" target="_blank" rel="noopener">Mint free on OpenSea →</a>`
+                  : `<div class="cs-follow">Opening soon on OpenSea — follow <a href="https://x.com/UnrealFilament" target="_blank" rel="noopener">@UnrealFilament</a> for the go-live ping</div>`
+              }
             </div>
           `;
         }
