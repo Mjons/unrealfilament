@@ -4125,10 +4125,74 @@
         return _origCloseModal2();
       };
 
-      // Boot the chain query. Best-effort — log + leave gallery as-is on fail.
-      fetchMintState()
-        .then(applyMintState)
-        .catch((e) => console.warn("[chain] mint state fetch failed:", e));
+      // Chain query disabled post-pivot. It reads the retired 0.038 ETH
+      // pair-mint contract, whose state says nothing about the OpenSea
+      // free mint that replaced it — leaving it on badged the one pair we
+      // minted ourselves as "minted" and showed 249 available. The
+      // machinery is kept intact for the Twin claim contract; re-enable by
+      // pointing CHAIN_CONFIG.contractAddress at it and flipping this flag.
+      const CHAIN_STATE_ENABLED = false;
+      if (CHAIN_STATE_ENABLED) {
+        fetchMintState()
+          .then(applyMintState)
+          .catch((e) => console.warn("[chain] mint state fetch failed:", e));
+      }
+
+      /* =======================================================================
+         Deep links: /edition/#001 … #250
+         Every Edition token's external_url is minted as /edition/#<pair>
+         (tools/build-metadata-csv.cjs), so the hash has to resolve to that
+         piece — it's written on chain and can't be corrected later.
+         These wrappers go last on purpose: openModal has already been
+         reassigned twice above (zoom reset, mint CTA), and each wrapper
+         calls whatever it captured, so the outermost one has to be the
+         one that owns the URL.
+         ======================================================================= */
+      const idxByTokenId = new Map(
+        EDITION.selected.map((s, i) => [s.tokenId, i]),
+      );
+
+      function idxFromHash() {
+        // Accepts #001 and #1 alike; anything else is not ours to handle.
+        const m = /^#0*(\d{1,3})$/.exec(location.hash);
+        if (!m) return -1;
+        const idx = idxByTokenId.get(Number(m[1]));
+        return idx === undefined ? -1 : idx;
+      }
+
+      function syncHash(hash) {
+        // replaceState, not assignment to location.hash: the URL stays
+        // shareable, no hashchange fires back at us, and Back leaves the
+        // gallery instead of walking every tile the visitor opened.
+        history.replaceState(
+          null,
+          "",
+          hash || location.pathname + location.search,
+        );
+      }
+
+      const _origOpenModal4 = openModal;
+      openModal = function (idx) {
+        _origOpenModal4(idx);
+        const id = EDITION.selected[idx].tokenId;
+        syncHash("#" + String(id).padStart(3, "0"));
+      };
+      const _origCloseModal4 = closeModal;
+      closeModal = function () {
+        _origCloseModal4();
+        syncHash("");
+      };
+
+      // Someone pasting a link into the address bar of an already-open tab.
+      window.addEventListener("hashchange", () => {
+        const idx = idxFromHash();
+        if (idx >= 0) openModal(idx);
+        else if (modal.classList.contains("show")) closeModal();
+      });
+
+      // Arriving from an external_url — land straight on the piece.
+      const deepLinkIdx = idxFromHash();
+      if (deepLinkIdx >= 0) openModal(deepLinkIdx);
     </script>
 
     <!-- Sets document.body.dataset.mintState ("pre-launch" | "live" | "sold-out")

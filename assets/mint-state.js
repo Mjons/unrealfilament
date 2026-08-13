@@ -31,6 +31,15 @@
   // Default: pre-launch. Always set immediately so initial paint is correct.
   setState("pre-launch");
 
+  // Post-pivot the Edition half is a free mint on OpenSea, and this reads
+  // the retired 0.038 ETH pair-mint contract — its paused()/pairsMinted()
+  // no longer describe anything the site should show. Left on, it flipped
+  // the page to 'live' and advertised the single pair we minted ourselves.
+  // Stay at pre-launch until the OpenSea drop opens. Re-enable by pointing
+  // filament-config at the Twin claim contract and flipping this flag.
+  const CHAIN_STATE_ENABLED = false;
+  if (!CHAIN_STATE_ENABLED) return;
+
   // Try cache first.
   try {
     const raw = sessionStorage.getItem(CACHE_KEY);
